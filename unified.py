@@ -7,27 +7,27 @@ import numpy as np
 from tools import conservative_quantile, bisect
 
 
-def poisson_fit(n, b):
+def fit_theta(n, b):
     """The positive-confined best-fit for poissonian signal parameter theta."""
     return np.fmax(0.0, n-b)
 
 
-def poisson_lr(n, b, t):
+def likelihood_ratio(n, b, t):
     """The likelihood ratio for a theta-value of `t` with background `b` and measured value `n`."""
-    t_fit = poisson_fit(n, b)
+    t_fit = fit_theta(n, b)
     return ((t+b)/(t_fit+b))**n * np.exp(t_fit - t)
 
 
-def poisson_c_t(b, t, clvl, N_mc):
+def critical_theta(b, t, clvl, N_mc):
     """Estimate the critical c_theta value."""
     n_sample = np.random.poisson(t+b, size=N_mc)
-    lr = poisson_lr(n_sample, b, t)
+    lr = likelihood_ratio(n_sample, b, t)
 
     return conservative_quantile(lr, -(1.0 - clvl))[0]
 
 
-def poisson_cl(n, b, clvl, N_mc):
-    t_best = poisson_fit(n, b)
+def confidence_interval(n, b, clvl, N_mc):
+    t_best = fit_theta(n, b)
 
     cache = {}
     def f(t, N):
