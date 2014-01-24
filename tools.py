@@ -46,7 +46,7 @@ def conservative_quantile(x, p):
         return r, len(items)
 
 
-def bisect(f, a, b, xtol=1e-2, ftol=1e-6):
+def bisect(f, a, b, xtol=1e-2, ftol=1e-6, args=()):
     """Bisection search for root of `f` in interval `[a, b]`.
 
     If there's a sub-intervall where `f(x) == 0` the edge nearest to `a` is
@@ -70,13 +70,13 @@ def bisect(f, a, b, xtol=1e-2, ftol=1e-6):
     r : float
         The root nearest to `a`.
     """
-    fa = f(a)
-    fb = f(b)
+    fa = f(a, *args)
+    fb = f(b, *args)
     if np.sign(fa) == np.sign(fb):
         raise ValueError("f(a) and f(b) must have opposite sign: f(%r)=%r  f(%r)=%r" % (a, fa, b, fb))
     while abs(a-b) > xtol and abs(fa - fb) > ftol:
         t = 0.5 * (a+b)
-        ft = f(t)
+        ft = f(t, *args)
         if np.sign(ft) == np.sign(fa):
             a = t
             fa = ft

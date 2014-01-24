@@ -1,5 +1,5 @@
 """
-Unified confidence limits for a Poissonian signal + known background
+Unified confidence limits for a Poissonian signal + *known* background
 """
 from __future__ import print_function
 import numpy as np
@@ -23,59 +23,51 @@ def poisson_c_t(b, t, clvl, N_mc):
     n_sample = np.random.poisson(t+b, size=N_mc)
     lr = poisson_lr(n_sample, b, t)
 
-    # hand-crafted quantile
-    # v, f = itemfreq(lr).T
-    # cumf = np.cumsum(f/N_mc)
-    # i = np.where(cumf <= clvl)[0][-1] + 1
-    # # print(">>", t, i)
-    # # print("  ", v[[i-1,i,i+1]])
-    # # print("  ", cumf[[i-1, i, i+1]])
-    # return v[i]
-
-    # return np.percentile(lr, 100.0 * (1.0 - clvl))
-    # return mquantiles(lr, clvl)[0]
     return conservative_quantile(lr, -(1.0 - clvl))[0]
 
 
 def poisson_cl(n, b, clvl, N_mc):
     t_best = poisson_fit(n, b)
 
-    N = N_mc
     cache = {}
-    def f(t):
-        if t not in cache:
-            cache[t] = poisson_lr(n, b, t) - poisson_c_t(b, t, clvl, N)
-        return cache[t]
+    def f(t, N):
+        k = (t, N)
+        if k not in cache:
+            cache[k] = poisson_lr(n, b, t) - poisson_c_t(b, t, clvl, N)
+        return cache[k]
 
-    # print("f(t_best)", f(t_best))
-
-    # Don't waste MC time for finding the bounds of the search intervals.
-    N = N_mc
-    if t_best == 0.0 or f(0) >= 0:
+    # Use full MC precision for searching the lower limit.
+    if t_best == 0.0 or f(0, N_mc) >= 0:
         t0 = 0
     else:
         # Use full MC precision for searching the actual limit.
-        N = N_mc
         # NOTE: The standard functions do not work here, because there are
         # whole intervals where `f(t) == 0` and we need the outer bounds of
         # these intervals.
         # t0 = optimize.brentq(f, 0, t_best)
         # t0 = optimize.bisect(f, 0, t_best, xtol=1e-4)
         # So we have to use a hand-crafted root-finding.
-        t0 = bisect(f, 0, t_best)
+        t0 = bisect(f, 0, t_best, args=(N_mc,))
 
     u = t_best
     v = max(1.0, 2*u)
-    # print("++", u, v)
     # Don't waste MC time for finding the bounds of the search intervals.
-    # N = 1000
-    while f(v) >= 0:
+    N_coarse = 1000
+    while f(v, N_coarse) >= 0:
         u = v
         v = 2*u
-        # print("++", u, v)
+
     # Use full MC precision for searching the actual limit.
-    N = N_mc
-    t1 = bisect(f, v, u)
+    try:
+        t1 = bisect(f, v, u, args=(N_mc,))
+    except ValueError:
+        # Error is raised if at high-precision `sign(f(u)) == sign(f(v))`.
+        # Restart searching bounds with high MC precision if 
+        u = t_best
+        while f(v, N_mc) >= 0:
+            v = 2*v
+        t1 = bisect(f, v, u, args=(N_mc,))
+
     return t0, t1
 
 
