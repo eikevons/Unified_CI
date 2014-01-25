@@ -74,7 +74,7 @@ def confidence_interval(n, m, gamma, clvl, N_mc):
 
     t0 = 0.0
     if theta_best > 0 and f(0, N_mc) < 0:
-        t0 = bisect(f, 0, theta_best, args=(N_mc,))
+        t0 = bisect(f, theta_best, 0, args=(N_mc,))
 
     u = theta_best
     v = max(1, 2*u)
@@ -82,7 +82,7 @@ def confidence_interval(n, m, gamma, clvl, N_mc):
         u = v
         v = 2*u
 
-    t1 = bisect(f, v, u, args=(N_mc,))
+    t1 = bisect(f, u, v, args=(N_mc,))
     return t0, t1
 
 
