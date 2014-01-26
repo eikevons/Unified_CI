@@ -1,7 +1,10 @@
 """
-Unified confidence limits for a Poissonian signal + *known* background
+Confidence limits for a Poissonian signal + *known* background
+
+This gives slightly different results than the unified algorithm by
+Feldman+Cousins(1998).
 """
-from __future__ import print_function
+from __future__ import print_function, division
 import numpy as np
 
 from tools import conservative_quantile, bisect
@@ -33,12 +36,12 @@ def confidence_interval(n, b, clvl, N_mc):
     def f(t, N):
         k = (t, N)
         if k not in cache:
-            cache[k] = poisson_lr(n, b, t) - poisson_c_t(b, t, clvl, N)
+            cache[k] = likelihood_ratio(n, b, t) - critical_theta(b, t, clvl, N)
         return cache[k]
 
     # Use full MC precision for searching the lower limit.
     if t_best == 0.0 or f(0, N_mc) >= 0:
-        t0 = 0
+        t0 = 0.0
     else:
         # Use full MC precision for searching the actual limit.
         # NOTE: The standard functions do not work here, because there are
@@ -47,7 +50,7 @@ def confidence_interval(n, b, clvl, N_mc):
         # t0 = optimize.brentq(f, 0, t_best)
         # t0 = optimize.bisect(f, 0, t_best, xtol=1e-4)
         # So we have to use a hand-crafted root-finding.
-        t0 = bisect(f, 0, t_best, args=(N_mc,))
+        t0 = bisect(f, t_best, 0, args=(N_mc,))
 
     u = t_best
     v = max(1.0, 2*u)
@@ -66,7 +69,7 @@ def confidence_interval(n, b, clvl, N_mc):
         u = t_best
         while f(v, N_mc) >= 0:
             v = 2*v
-        t1 = bisect(f, v, u, args=(N_mc,))
+        t1 = bisect(f, u, v, args=(N_mc,))
 
     return t0, t1
 
