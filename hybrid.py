@@ -30,6 +30,24 @@ def likelihood_ratio(n, m, theta, gamma):
 
 
 def critical_value(n, m, theta, gamma, clvl, N_mc):
+    """Calculate the critical likelihood ratio value using hybrid resampling.
+
+    Parameters
+    ----------
+    n : int
+        Number of counts in the signal region.
+    m : int
+        Number of counts in the background region.
+    theta : float
+        The expectation value of the signal rate.
+    gamma : float
+        The ratio of background to signal region.
+    clvl : float
+        The target confidence level.
+    N_mc : int
+        The number of MC toy experiments used to estimate the critical
+        likelihood ratio.
+    """
     bhh = local_fit_b(n, m, theta, gamma)
 
     ns = np.random.poisson(theta + bhh, size=N_mc)
@@ -60,6 +78,22 @@ def mk_plot(ts, N_mc):
     P.show()
 
 def confidence_interval(n, m, gamma, clvl, N_mc):
+    """Calculate confidence interval.
+
+    Parameters
+    ----------
+    n : int
+        Number of counts in the signal region.
+    m : int
+        Number of counts in the background region.
+    gamma : float
+        The ratio of background to signal region.
+    clvl : float
+        The target confidence level.
+    N_mc : int
+        The number of MC toy experiments used to estimate the critical
+        likelihood ratio.
+    """
     theta_best = global_fit_theta(n, m, gamma)
 
     cache = {}
