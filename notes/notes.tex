@@ -1,0 +1,298 @@
+%        File: notes.tex
+%     Created: Thu Nov 07 11:00 AM 2013 C
+% Last Change: Thu Nov 07 11:00 AM 2013 C
+%
+\documentclass[a4paper]{article}
+
+\include{preamble}
+
+\addbibresource{conflim.bib}
+
+\newcommand*\Hz{\maybebm{\mathrm{H}_0}\xspace}
+\newcommand*\Prob{\mathrm{Pr}}
+\newcommand*\PG{\maybebm{P_\mathrm{G}}\xspace}
+\newcommand*\Pchi{\maybebm{P_{\chi^2}}\xspace}
+
+\title{A Semi-analytic Solution for Unified Confidence Intervals Based
+on Critical Likelihood-ratio Values}
+\author{Jan Eike von Seggern}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+\textcite{Feldman1998} proposed to construct Frequentist confidence
+intervals
+using an ordering scheme based on likelihood ratios. This method is
+known as the ``Unified Method''. It allows to avoid so-called
+flip-flopping between quoting one- and two-sided intervals depending on
+the measured value, which is a source of significant undercoverage.
+
+In their original paper, \citeauthor{Feldman1998} use the classical
+Neyman prescription to construct confidence belts, which are
+subsequently used to derive confidence intervals based on a measured
+value. However, the construction confidence intervals is tightly
+connected to statistical hypothesis
+testing\cite{wiki:confidenceinterval,Cox1974}: The confidence intervals
+can be constructed by including all values for which a test statistic is
+above a critical value\cite{Sen2009}.
+
+In this note, we will present a semi-analytical method to construct
+unified confidence intervals for the case of estimating the expectation
+value, $\mu$, for a Gaussian-distributed observable with known variance,
+$\sigma^2$, and constraint $\mu \geq 0$. In contrast to the classical
+Neyman procedure, this method does not rely on constructing a confidence
+belt.
+
+\section{Confidence Intervals and Hypothesis Testing}
+
+As mentioned above, the construction of confidence intervals is tightly
+connected to hypothesis testing: Consider estimating the parameter
+$\theta$ of a single-parameter distribution, \eg the expectation value
+of a Gaussian distribution. The confidence interval (or region) for
+$\theta$ with confidence level $\CL = 1-\alpha$ can be constructed to be
+the set of values $\{\theta\}$ for which the null hypothesis
+%
+\begin{equation*}
+  \Hz: \theta = \theta_\mathrm{true}
+\end{equation*}
+%
+is not rejected with significance $\alpha$ for a measured value of $x$.
+
+Let $t(x)$ be the test statistic used with $t=0$ if \Hz is true. Then,
+\Hz is rejected if
+%
+\begin{equation*}
+  |t(x)| \geq c_\alpha
+  \fcomma
+\end{equation*}
+%
+where the critical value $c_\alpha$ is defined by
+%
+\begin{equation*}
+  \Prob\left( |t| \geq c_\alpha; \theta\right) = \alpha
+  \fcomma
+\end{equation*}
+%
+\ie the probability to measure a sample $x$ with $|t(x)| > c_\alpha$ is
+$\alpha$ if the parameter of the distribution has the value $\theta$.
+One should note that the critical value may be a function of the
+parameter: $c_\alpha=c_\alpha(\theta)$.
+
+In order to construct unified confidence intervals, the likelihood ratio
+%
+\begin{equation*}
+  \Lambda(\theta) = \frac{L(\theta; x)}{L(\hat{\theta}(x); x)}
+\end{equation*}
+%
+% or for convenience its logarithm
+% %
+% \begin{equation*}
+  % \lambda = -2 \ln \Lambda
+% \end{equation*}
+% %
+is used as test statistic, where $L$ is the likelihood function and
+$\hat{\theta}(x)$ maximizes $L$ for given $x$ obeying constraints (\eg
+$\theta \geq 0$).
+Hence, $\Lambda$ takes up values in
+$[0,1]$. If the null hypothesis,
+$\hat{\theta}(x) = \theta_\mathrm{true}$, is true, we find $\Lambda=1$
+slightly different to the definition of the test statistic $t$ above.
+The critical value is therefore defined by the $\alpha$-quantile of the
+distribution of the likelihood ratio,
+%
+\begin{equation}
+  \label{eq:likelihood:ratio:critical:value}
+  \Prob(\Lambda < c_\alpha; \theta) = \alpha
+\end{equation}
+%
+and the confidence interval consists of all values $\theta$ for which
+%
+\begin{equation*}
+  \Lambda(\theta; x) \geq c_\alpha(\theta)
+  \fstop
+\end{equation*}
+%
+
+\section{Likelihood-ratio Distribution for Constrained Gaussian}
+
+As seen above, it is necessary to calculate the $\alpha$-quantile of the
+likelihood-ratio distribution. Therefore, it is necessary to know the
+distribution of the likelihood-ratio, which will be derived in this
+section for the case of the mean of a Gaussian that is constrained to
+the positive domain. For a single measurement, $x$, the
+maximum-likelihood estimator is given by\cite{Feldman1998}
+%
+\begin{equation*}
+  \hat\mu(x) = \max(0, x)
+  \fstop
+\end{equation*}
+%
+Hence, the likelihood ratio is given by
+%
+\begin{equation*}
+  \Lambda(\mu; x) = 
+  \begin{cases}
+    \displaystyle
+    \exp\left[ - \frac{(x-\mu)^2}{2\sigma^2} \right] & \text{if } x \geq 0
+    \fcomma
+    \\
+    \displaystyle
+    \exp\left[ \frac{\mu}{\sigma^2} \left( t - \frac{\mu}{2} \right) \right] & \text{otherwise}
+    \fstop
+  \end{cases}
+\end{equation*}
+%
+
+For convenience, we will use $\lambda=-2\ln\Lambda$ instead,
+%
+\begin{equation}
+  \label{eq:log:likelihood:ratio}
+  \lambda(\mu; x) = 
+  \begin{cases}
+    \displaystyle
+     \frac{(x-\mu)^2}{\sigma^2} & \text{if } x \geq 0
+    \fcomma
+    \\
+    \displaystyle
+    \frac{2\mu}{\sigma^2} \left( \frac{\mu}{2} - x \right) & \text{if } x < 0
+    \fcomma
+  \end{cases}
+\end{equation}
+%
+which takes up values from $[0, \infty)$.
+According to \Eq{eq:likelihood:ratio:critical:value} and because the
+logarithm is strictly increasing,
+the critical $\lambda$-value, $\zeta_\alpha = -2\ln c_\alpha$, is given by
+%
+\begin{equation*}
+  \Prob(\Lambda < c_\alpha; \mu) = 
+  \Prob(\lambda > \zeta_\alpha; \mu) = \alpha
+  \fstop
+\end{equation*}
+%
+
+The cumulative distribution function (CDF) for $\lambda$ is given by
+\begin{align*}
+  P_\lambda(l) & = \Prob(\lambda < l; \mu) \\
+  & =
+  \underbrace{\Prob(\lambda < l \wedge x \geq 0; \mu)}_{P_+(l)}
+  +
+  \underbrace{\Prob(\lambda < l \wedge x < 0; \mu)}_{=P_-(l)}
+  \fcomma
+\end{align*}
+where the contributions $P_\pm$ correspond to the two cases of
+\Eq{eq:log:likelihood:ratio} and $\mu$ is mentioned explicitly to
+remind that the probabilities are evaluated under the assumption that
+the expectation value of the $x$-distribution is $\mu$.
+
+\paragraph{$\maybebm{P_+}$:}
+The probability contribution $P_+$ can be rewritten using conditional
+probabilities,
+%
+\begin{align}
+  P_+(l)
+  & = \Prob(\lambda < l \wedge x \geq 0; \mu)
+  \nonumber
+  \\
+  & = \Prob(\lambda < l | x \geq 0) \cdot \Prob(x \geq 0; \mu)
+  \label{eq:p:plus:conditional}
+  \fcomma
+\end{align}
+%
+where $\Prob(x \geq 0; \mu)$ is given by the Gaussian CDF, \PG, by
+%
+\begin{equation}
+  \label{eq:p:plus:prior}
+  \Prob(x \geq 0; \mu) = 1 - \PG(0; \mu, \sigma)
+  \fstop
+\end{equation}
+%
+
+Because $x$ is Gaussian-distributed, 
+$\lambda = [(x-\mu)/\sigma]^2$ follows in principle a
+chi-squared distribution with one degree of freedom. However, due to the
+constraint $x \geq 0$, we find
+%
+\begin{equation*}
+  \frac{t-\mu}{\sigma} > -\frac{\mu}{\sigma}
+\end{equation*}
+%
+and the parabola $\lambda=[(x-\mu)/\sigma]^2$ is realized only once
+for values above $(\mu/\sigma)^2$ but twice for values below this
+bound. Hence, the chi-squared CDF, \Pchi, has to be re-weighted
+in order to calculate $P_+$. The factor for re-weighting is given by
+\begin{equation*}
+  \overbrace{2 \cdot \Pchi[(\mu/\sigma)^2]}^{\text{contribution
+  for} \lambda < (\mu/\sigma)^2} +
+  \overbrace{
+    \underbrace{\Pchi(\infty)}_{=1} - \Pchi[(\mu/\sigma)^2]
+}^{\text{contribution
+  for} \lambda \geq (\mu/\sigma)^2}
+  = 1 + \Pchi[(\mu/\sigma)^2]
+  = 1 + \nu
+     \fcomma
+\end{equation*}
+and the conditional probability in \Eq{eq:p:plus:conditional} is given
+by
+%
+\begin{equation}
+  \label{eq:p:plus:conditional:only}
+  \Prob(\lambda < l | x \geq 0) =
+  \begin{cases}
+    \displaystyle
+    \frac{2 \cdot \Pchi(l)}{1+\nu} & \text{if } l < (\mu/\sigma)^2
+    \\
+    \displaystyle
+    \frac{\Pchi(l) + \nu}{1 + \nu} & \text{otherwise.}
+  \end{cases}
+\end{equation}
+%
+
+\paragraph{$\maybebm{P_-}$:}
+For $x<0$, $\lambda$ is a linear function of $x$ and
+%
+\begin{equation*}
+  \lambda < l
+  \quad \Leftrightarrow \quad
+  x > \xi = \frac{\sigma^2}{2\mu} \left( \frac{\mu^2}{\sigma^2} - l \right)
+  \fstop
+\end{equation*}
+%
+Hence, we find for the probability contribution $P_-$
+%
+\begin{align}
+  P_-(l)
+  & =
+  \Pr(\lambda < l \wedge x < 0; \mu)
+  \nonumber
+  \\
+  & =
+  \Pr(\xi < x < 0; \mu)
+  \nonumber
+  \\
+  & =
+  \begin{cases}
+    \displaystyle
+    0 & \text{if } l < (\mu/\sigma)^2 \fcomma \\
+    \displaystyle
+    \PG(0; \mu, \sigma) - \PG(\xi; \mu, \sigma) & \text{otherwise} \fstop
+  \end{cases}
+  \label{eq:p:minus:result}
+\end{align}
+%
+
+\paragraph{}
+As numerical approximations for the CDFs of chi-squared and Gaussian
+distributions are readily available in many programming libraries,
+$P_\lambda$ can be easily computed by combining \Eqs{eq:p:plus:prior},
+\eqref{eq:p:plus:conditional:only} and \eqref{eq:p:minus:result} and the
+critical $\lambda$-values, $\zeta_\alpha$, can be approximated by, for
+example, a bisection algorithm to finally calculate the critical
+likelihood-ratio value $c_\alpha = \exp(-2\zeta_\alpha)$.
+
+\printbibliography[heading=bibintoc]
+
+\end{document}
+
+

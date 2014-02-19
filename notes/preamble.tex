@@ -1,0 +1,203 @@
+% vim:foldmethod=marker
+% \usepackage{lmodern}
+% \usepackage[sc]{mathpazo}
+% \usepackage{tgpagella}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[american]{babel}
+
+% include bibliography in TOC
+% http://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Using_tocbibind
+\usepackage[nottoc]{tocbibind}
+
+\usepackage{graphicx}
+% Allow spaces in graphics files
+\usepackage{grffile}
+
+\usepackage{subfig}
+\usepackage[labelfont=bf]{caption}
+
+\usepackage{lipsum}
+\usepackage{multirow}
+\usepackage{booktabs}
+
+\usepackage{enumitem}
+\usepackage{footmisc}
+
+\usepackage{calc}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{maybemath}
+
+
+% To fix
+% Package biblatex Warning: 'babel' detected but 'csquotes' missing.
+% (biblatex)                Loading 'csquotes' recommended.
+\usepackage{csquotes}
+\usepackage[colorlinks=false]{hyperref}
+\usepackage[style=numeric-comp,
+  firstinits=true,
+  maxbibnames=4,
+  maxcitenames=2,
+  minnames=1,
+  hyperref=true,
+  sorting=none,
+  sortcites=true,
+  backend=biber,
+  eprint=true,
+  doi=true,
+  url=true,
+  isbn=false
+]{biblatex}
+\bibliography{/home/vseggern/papers2/bibliography.bib}
+% make article titles sentence cased
+% see
+% <http://tex.stackexchange.com/questions/22980/sentence-case-for-titles-in-biblatex>
+\DeclareFieldFormat{sentencecase}{\MakeSentenceCase*{#1}}
+\renewbibmacro{title}{%
+    \ifthenelse{\iffieldundef{title}\AND\iffieldundef{subtitle}}{}
+        {\ifthenelse{\ifentrytype{article}\OR\ifentrytype{inbook}%
+            \OR\ifentrytype{incollection}\OR\ifentrytype{inproceedings}}
+            {\printtext[title]{%
+                \printfield[sentencecase]{title}%
+                \setunit{\subtitlepunct}%
+                \printfield[sentencecase]{subtitle}}%
+                \newunit}%
+            {\printtext[title]{%
+                \printfield[titlecase]{title}%
+                \setunit{\subtitlepunct}%
+                \printfield[titlecase]{subtitle}}%
+                \newunit}}%
+    \printfield{titleaddon}}
+% http://tex.stackexchange.com/questions/10682/suppress-in-biblatex
+\renewbibmacro{in:}{%
+  \ifentrytype{article}{}{%
+    \printtext{\bibstring{in}\intitlepunct}}}
+% Do not set language field
+% see
+% <http://tex.stackexchange.com/questions/32930/is-it-possible-to-suppress-a-specific-field-from-bibtex-bbl-in-biblatex>
+\AtEveryBibitem{\clearlist{language}} % clears language
+
+% See http://latex-alive.tumblr.com/post/56318007101
+% NOTE: Use `~' here because I nobreakbefore inserts a non-breaking
+% space only if a space is present before \cite{...}
+\def\nobreakbefore{%
+  \relax\ifvmode\else
+    \ifhmode
+      \ifdim\lastskip > 0pt\relax
+        \unskip\nobreakspace
+      \fi
+    \fi
+  \fi
+}
+\def\alwaysnobreakbefore{%
+  \unskip\nobreakspace
+}
+\let\origcite\cite
+\renewcommand{\cite}{\alwaysnobreakbefore\origcite}
+
+\usepackage{xspace}
+\usepackage{relsize}
+
+\usepackage{lscape}
+\usepackage{afterpage}
+
+\usepackage{siunitx}
+\sisetup{table-number-alignment=center,group-separator=none,range-phrase=dash,separate-uncertainty=true}
+% \newunit{\ADU}{ADU}
+% \newunit{\ec}{\Pelectron^{-}}
+% % TODO 
+% \newunit{\photon}{\mbox{$\gamma$}}
+% \newunit{\pixel}{px}
+% \newunit{\parsec}{pc}
+% \newunit{\year}{yr}
+% \newunit{\erg}{erg}
+% \newunit{\ppm}{ppm}
+% \newunit{\milliarcsecond}{mas}
+% \newunit{\arcsecond}{as}
+
+\newcommand*\SIsym[2]{\SI[per-mode = symbol]{#1}{#2}}
+\newcommand*\sisym[1]{\si[per-mode = symbol]{#1}}
+
+\usepackage{xcolor}
+
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning,scopes,arrows,decorations.markings,decorations.pathmorphing,shapes.geometric}
+\tikzset{axis line/.style={->,thick}}
+\tikzset{axis tick/.style={thick}}
+\tikzset{orientation line/.style={dashed}}
+\tikzset{function line/.style={very thick}}
+
+\tikzset{filled charge bucket/.style={lightgray}}
+\tikzset{electric connection/.style={thick}}
+\tikzset{electric plug/.style={thick,fill=white}}
+ \edef\defaultpgflinewidth{\the\pgflinewidth}
+
+%% TODO boxes {{{
+\definecolor{todoboxcolor}{rgb}{1.0,0.6,0.6}
+\newcommand{\TODO}[1]{\par\medskip%
+\colorbox{todoboxcolor}{TODO: \parbox[t]{8.5cm}{#1}}%
+\medskip\newline}
+
+\definecolor{todoneboxcolor}{rgb}{1.0,0.9,0.9}
+\newcommand{\TODONE}[1]{\par\medskip \noindent%
+\colorbox{todoneboxcolor}{TODONE?: \parbox[t]{8.5cm}{#1}}%
+\medskip\newline}
+
+\newcommand\TODOI[1]{\colorbox{todoboxcolor}{\textsc{\smaller Todo:}\textbf{#1}}}
+
+\definecolor{tocitecolor}{rgb}{0.8,0.2,0.2}
+\newcommand\TOCITE[1]{\textbf{\color{tocitecolor}[#1]}}
+%% }}}
+
+
+\newcommand*\disptextwidth{\\\rule{0.1pt}{10pt}\rule[3pt]{\textwidth-0.2pt}{0.1pt}\rule{0.1pt}{10pt}}
+
+%% References {{{
+\newcommand\Eq[1]{Eq.~\eqref{#1}\xspace}
+\newcommand\Eqs[1]{Eqs.~\eqref{#1}\xspace}
+\newcommand\Fig[2][]{Fig.~\ref{#2}#1\xspace}
+\newcommand\Figs[2][]{Figs.~\ref{#2}#1\xspace}
+\newcommand\Tab[1]{Tab.~\ref{#1}\xspace}
+\newcommand\Tabs[1]{Tabs.~\ref{#1}\xspace}
+\newcommand{\Sec}[1]{Sec.~\ref{#1}\xspace}
+\newcommand{\Secs}[1]{Secs.~\ref{#1}\xspace}
+\newcommand{\Chap}[1]{Chap.~\ref{#1}\xspace}
+\newcommand{\Chaps}[1]{Chaps.~\ref{#1}\xspace}
+\newcommand*{\App}[1]{App.~\ref{#1}\xspace}
+%% }}}
+
+%% Formula abbreviations {{{{{
+\newcommand\mean[1]{\ensuremath{\langle #1\rangle}\xspace}
+\newcommand\ofOrder[1]{\ensuremath{\mathcal{O}(#1)}\xspace}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\rms}{rms}
+\DeclareMathOperator{\const}{const}
+\DeclareMathOperator{\median}{median}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\newcommand\myvec[1]{\ensuremath{\mathbf{#1}}\xspace}
+
+% punctuation at the end of formulas
+\newcommand\fcomma{\;,}
+\newcommand\fstop{\;.}
+
+\newcommand\diff{\mathrm{d}}
+
+\newcommand\poi{\ensuremath{\mathrm{Poi}}\xspace}
+\newcommand\gau{\ensuremath{\mathcal{N}}\xspace}
+
+\newcommand\CL{\ensuremath{\mathrm{CL}}\xspace}
+
+%% }}}}}
+
+\newcommand\xparagraph[1]{\textbf{#1:}\xspace}
+% \newcommand\myem[1]{\textbf{#1}\xspace}
+\newcommand\ie{i.e.~}
+\newcommand\eg{e.g.~}
+
+\newcommand\NTH[2]{#1$^\mathrm{#2}$\xspace}
+%% Names of experiments
+%% {{{
+%% }}}
