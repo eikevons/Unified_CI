@@ -1,5 +1,5 @@
 """
-Confidence limits for a Poissonian signal + *known* background
+Confidence limits for a Poissonian signal + *known* background.
 
 This gives the same results as the unified algorithm as tabulated in
 Feldman+Cousins(1998).
@@ -63,12 +63,13 @@ def confidence_interval(n, b, clvl):
     t_best = fit_theta(n, b)
 
     cache = {}
-    def f(t):
+    # lr - crit_theta
+    def delta(t):
         if t not in cache:
             cache[t] = likelihood_ratio(n, b, t) - critical_theta(b, t, clvl)
         return cache[t]
 
-    if t_best == 0.0:
+    if t_best == 0.0 or delta(0.0) >= 0:
         t0 = 0.0
     else:
         # Use full MC precision for searching the actual limit.
@@ -78,14 +79,14 @@ def confidence_interval(n, b, clvl):
         # t0 = optimize.brentq(f, 0, t_best)
         # t0 = optimize.bisect(f, 0, t_best, xtol=1e-4)
         # So we have to use a hand-crafted root-finding.
-        t0 = bisect(f, t_best, 0)
+        t0 = bisect(delta, t_best, 0)
 
     u = t_best
     v = max(1.0, 2*u)
-    while f(v) >= 0:
+    while delta(v) >= 0:
         u = v
         v = 2*u
-    t1 = bisect(f, u, v)
+    t1 = bisect(delta, u, v)
 
     return t0, t1
 
