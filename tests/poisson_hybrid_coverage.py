@@ -1,12 +1,20 @@
 """
 Estimate the coverage of hybrid confidence intervals.
 
-Usage: hybrid_coverage.py theta b gamma cl ntest
+Usage: poisson_hybrid_coverage.py theta b gamma cl ntest
 """
 from __future__ import division
 import sys
 from numpy.random import poisson
-from hybrid import confidence_interval
+
+try:
+    from confidencelevel.poisson.hybrid import confidence_interval
+    print('Using installed confidencelevel package')
+except ImportError:
+    sys.path.append('..')
+    from confidencelevel.poisson.hybrid import confidence_interval
+    print('Using source confidencelevel package')
+
 
 if len(sys.argv) != 6:
     sys.exit(__doc__)
