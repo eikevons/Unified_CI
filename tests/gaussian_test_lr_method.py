@@ -9,32 +9,47 @@ This is meant for testing/comparison with expected interval::
        (blue dotted) with likelihood ratio (magenta dashed) and the expected
        CI boundaries (black vertical lines).
 """
+import sys
 import numpy as np
 from scipy import stats
 
 import pylab as P
 
-t = 10.0
+try:
+    from confidencelevel.gaussian import GaussianUnconstrainedInterval
+    print('Using installed confidencelevel package')
+except ImportError:
+    sys.path.append('..')
+    from confidencelevel.gaussian import GaussianUnconstrainedInterval
+    print('Using source confidencelevel package')
+
+
+measured = 10.0
 sigma = 9.0
 
-alpha = 0.01
+cl = 0.99
+alpha = 1.0 - cl
 
 # simple case with no constraints
-ll = stats.norm.ppf(0.5*alpha, loc=t, scale=sigma)
-ul = stats.norm.isf(0.5*alpha, loc=t, scale=sigma)
+ll = stats.norm.ppf(0.5*alpha, loc=measured, scale=sigma)
+ul = stats.norm.isf(0.5*alpha, loc=measured, scale=sigma)
 
-x = np.linspace(t - 2 * (t - ll), t + 2 * (ul - t))
-P.plot(x, stats.norm.pdf(x, loc=t, scale=sigma), label='normal pdf')
+x = np.linspace(measured - 2 * (measured - ll), measured + 2 * (ul - measured))
+P.plot(x, stats.norm.pdf(x, loc=measured, scale=sigma), label='normal pdf')
 P.axvline(ll, ls='-', c='k', label='expected CI boundaries')
 P.axvline(ul, ls='-', c='k')
 
-def lr_simple(x):
-    return np.exp(-0.5 / sigma**2 * (t-x)**2)
+ci = GaussianUnconstrainedInterval(measured=measured, sigma=sigma, cl=cl)
+llci, ulci = ci.confidence_interval()
 
-P.plot(x, lr_simple(x), '--m', label='likelihood ratio')
+P.axvline(llci, ls='--', c='r', label='calculated CI boundaries')
+P.axvline(ulci, ls='--', c='r')
 
-xi = stats.norm.isf(0.5*alpha)
-crit_al = np.exp(-0.5 * xi**2)
+P.plot(x, ci.likelihood_ratio(x), '--m', label='likelihood ratio')
+
+# xi = stats.norm.isf(0.5*alpha)
+# crit_al = np.exp(-0.5 * xi**2)
+crit_al = ci.critical_value('unused')
 P.axhline(crit_al, ls=':', c='b', label='crit. LR')
 
 P.legend(loc='best')
