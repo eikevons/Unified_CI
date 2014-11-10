@@ -154,18 +154,19 @@ maximum-likelihood estimator is given by\cite{Feldman1998}
   \fstop
 \end{equation*}
 %
-Hence, the likelihood ratio is given by
+Hence, the likelihood ratio is given by (Eq.~(4.3) of
+\cite{Feldman1998})
 %
 \begin{equation*}
   \Lambda(\mu; x) = 
   \begin{cases}
     \displaystyle
-    \exp\left[ - \frac{(x-\mu)^2}{2\sigma^2} \right] & \text{if } x \geq 0
+    \exp\left[ - \frac{1}{2} \left( x - \mu \right)^2 \right] & \text{if } x \geq 0
     \fcomma
     \\
     \displaystyle
-    \exp\left[ \frac{\mu}{\sigma^2} \left( t - \frac{\mu}{2} \right) \right] & \text{otherwise}
-    \fstop
+    \exp\left[ \mu \left( x - \frac{\mu}{2} \right) \right] &
+    \text{otherwise.}
   \end{cases}
 \end{equation*}
 %
@@ -177,12 +178,11 @@ For convenience, we will use $\lambda=-2\ln\Lambda$ instead,
   \lambda(\mu; x) = 
   \begin{cases}
     \displaystyle
-     \frac{(x-\mu)^2}{\sigma^2} & \text{if } x \geq 0
+     (x-\mu)^2 & \text{if } x \geq 0
     \fcomma
     \\
     \displaystyle
-    \frac{2\mu}{\sigma^2} \left( \frac{\mu}{2} - x \right) & \text{if } x < 0
-    \fcomma
+    \mu \left( \mu - 2x \right) & \text{otherwise,}
   \end{cases}
 \end{equation}
 %
@@ -233,7 +233,7 @@ chi-squared distribution with one degree of freedom. However, due to the
 constraint $x \geq 0$, we find
 %
 \begin{equation*}
-  \frac{t-\mu}{\sigma} > -\frac{\mu}{\sigma}
+  \frac{x-\mu}{\sigma} > -\frac{\mu}{\sigma}
 \end{equation*}
 %
 and the parabola $\lambda=[(x-\mu)/\sigma]^2$ is realized only once
@@ -305,9 +305,9 @@ As numerical approximations for the CDFs of chi-squared and Gaussian
 distributions are readily available in many programming libraries,
 $P_\lambda$ can be easily computed by combining \Eqs{eq:p:plus:prior},
 \eqref{eq:p:plus:conditional:only} and \eqref{eq:p:minus:result} and the
-critical $\lambda$-values, $\zeta_\alpha$, can be approximated by, for
+critical $\lambda$-values, $\lambda_\alpha$, can be approximated by, for
 example, a bisection algorithm to finally calculate the critical
-likelihood-ratio value $c_\alpha = \exp(-2\zeta_\alpha)$.
+likelihood-ratio value $c_\alpha = \exp(-2\lambda_\alpha)$.
 
 \printbibliography[heading=bibintoc]
 
