@@ -8,10 +8,14 @@
 
 \addbibresource{conflim.bib}
 
-\newcommand*\Hz{\maybebm{\mathrm{H}_0}\xspace}
+\newcommand*\Hnull{\maybebm{\mathrm{H}_0}\xspace}
 \newcommand*\Prob{\mathrm{Pr}}
 \newcommand*\PG{\maybebm{P_\mathrm{G}}\xspace}
 \newcommand*\Pchi{\maybebm{P_{\chi^2}}\xspace}
+\newcommand*\xm{\maybebm{x_{\mathrm{m}}}\xspace}
+\newcommand*\ta{\maybebm{c_\alpha}\xspace}
+\newcommand*\ISF{\mathrm{ISF}}
+\newcommand*\QF{\mathrm{QF}}
 
 \title{A Semi-analytic Solution for Unified Confidence Intervals Based
 on Critical Likelihood-ratio Values}
@@ -48,71 +52,93 @@ belt.
 
 As mentioned above, the construction of confidence intervals is tightly
 connected to hypothesis testing: Consider estimating the parameter
-$\theta$ of a single-parameter distribution, \eg the expectation value
+$\theta$ of a single-parameter distribution, $f(x; \theta)$, \eg the expectation value
 of a Gaussian distribution. The confidence interval (or region) for
-$\theta$ with confidence level $\CL = 1-\alpha$ can be constructed to be
+$\theta$ with confidence level \CL can be constructed to be
 the set of values $\{\theta\}$ for which the null hypothesis
 %
 \begin{equation*}
-  \Hz: \theta = \theta_\mathrm{true}
+  \Hnull: \theta = \theta_\mathrm{true}
 \end{equation*}
 %
-is not rejected with significance $\alpha$ for a measured value of $x$.
+is not rejected with significance $\alpha = 1- \CL$ for a measured value
+of \xm.
 
-Let $t(x)$ be the test statistic used with $t=0$ if \Hz is true. Then,
-\Hz is rejected if
+Let $t(x)$ be a test statistic bound to the positive domain, $t(x) \geq
+0$, with mode at $t(x) = 0$ if \Hnull is true. Then, \Hnull is rejected
+if $t(\xm)$ is in the critical region, defined by
+%
+\begin{equation}
+  \label{eq:hnull:rejection}
+  t(\xm) \geq \ta
+  \fcomma
+\end{equation}
+%
+where the critical value \ta is defined by
+%
+\begin{equation}
+  \label{eq:critical:value:definition}
+  \Prob\left[ t(x) \geq \ta; x \sim f(\theta)\right] = \alpha
+  \fcomma
+\end{equation}
+%
+\ie the probability to observe a sample $x$ with $t(x) > \ta$ is
+$\alpha$ if the parameter of the distribution has the value $\theta$.%
+\footnote{%
+  Alternatively, one can recast \Eqs{eq:hnull:rejection} and
+  \eqref{eq:critical:value:definition}: \Hnull is accepted if
+  $t(\xm) \geq \ta$
+  with \ta given by
+  $\Pr\left[ t(x) < \ta; x \sim f(\theta) \right] = \CL = 1 - \alpha$.
+}%
+Hence, for given $\theta$, the critical value \ta is given by the
+$1-\alpha$ quantile of the distribution of $t(x)$ and, thus, a function of
+$\theta$,
 %
 \begin{equation*}
-  |t(x)| \geq c_\alpha
+  \ta(\theta) = \QF_t(1-\alpha; \theta)
   \fcomma
 \end{equation*}
 %
-where the critical value $c_\alpha$ is defined by
-%
-\begin{equation*}
-  \Prob\left( |t| \geq c_\alpha; \theta\right) = \alpha
-  \fcomma
-\end{equation*}
-%
-\ie the probability to measure a sample $x$ with $|t(x)| > c_\alpha$ is
-$\alpha$ if the parameter of the distribution has the value $\theta$.
-One should note that the critical value may be a function of the
-parameter: $c_\alpha=c_\alpha(\theta)$.
+where the parameter $\theta$ is written explicitly to emphasize that the
+quantile function of the distribution of $t(x)$, $\QF_t$, is evaluated assuming \Hnull is true.
 
+\paragraph{}
 In order to construct unified confidence intervals, the likelihood ratio
 %
 \begin{equation*}
-  \Lambda(\theta) = \frac{L(\theta; x)}{L(\hat{\theta}(x); x)}
+  R(\theta; x) = \frac{L(\theta; x)}{L(\hat{\theta}(x); x)}
 \end{equation*}
-%
-% or for convenience its logarithm
-% %
-% \begin{equation*}
-  % \lambda = -2 \ln \Lambda
-% \end{equation*}
-% %
-is used as test statistic, where $L$ is the likelihood function and
+is used as test statistic\cite{Feldman1998}, where $L$ is the likelihood function and
 $\hat{\theta}(x)$ maximizes $L$ for given $x$ obeying constraints (\eg
 $\theta \geq 0$).
-Hence, $\Lambda$ takes up values in
-$[0,1]$. If the null hypothesis,
-$\hat{\theta}(x) = \theta_\mathrm{true}$, is true, we find $\Lambda=1$
-slightly different to the definition of the test statistic $t$ above.
-The critical value is therefore defined by the $\alpha$-quantile of the
-distribution of the likelihood ratio,
+Hence, $R$ takes up values in
+$[0,1]$. Since $\hat{\theta}(x)$ maximizes $L$, the mode of $R$ under
+\Hnull is 1 and \Eqs{eq:hnull:rejection} and
+\eqref{eq:critical:value:definition} need to be reformulated: 
+The critical region is know given by
 %
 \begin{equation}
-  \label{eq:likelihood:ratio:critical:value}
-  \Prob(\Lambda < c_\alpha; \theta) = \alpha
+  \label{eq:hnull:rejection:likelihood:ratio}
+  R(\theta; \xm) \leq R_\alpha(\theta)
 \end{equation}
 %
-and the confidence interval consists of all values $\theta$ for which
+with critical value $R_\alpha(\theta)$ defined by 
+%
+\begin{equation}
+  \label{eq:critical:value:definition:likelihood:ratio}
+  \Pr\left[ R(\theta; x) < R_\alpha(\theta); x \sim f(\theta)  \right] = \alpha
+  \fcomma
+\end{equation}
+%
+i.e.~the $\alpha$-quantile of the distribution of the likelihood ratio,
 %
 \begin{equation*}
-  \Lambda(\theta; x) \geq c_\alpha(\theta)
+  R_\alpha(\theta) = \QF_R(\alpha; \theta)
   \fstop
 \end{equation*}
 %
+
 
 \section{Likelihood-ratio Distribution for Constrained Gaussian}
 
@@ -160,17 +186,9 @@ For convenience, we will use $\lambda=-2\ln\Lambda$ instead,
   \end{cases}
 \end{equation}
 %
-which takes up values from $[0, \infty)$.
-According to \Eq{eq:likelihood:ratio:critical:value} and because the
-logarithm is strictly increasing,
-the critical $\lambda$-value, $\zeta_\alpha = -2\ln c_\alpha$, is given by
-%
-\begin{equation*}
-  \Prob(\Lambda < c_\alpha; \mu) = 
-  \Prob(\lambda > \zeta_\alpha; \mu) = \alpha
-  \fstop
-\end{equation*}
-%
+which takes up values from the positive domain and has mode 0.
+Accordingly, \Eqs{eq:hnull:rejection} and
+\eqref{eq:critical:value:definition} can be used.
 
 The cumulative distribution function (CDF) for $\lambda$ is given by
 \begin{align*}
@@ -184,7 +202,7 @@ The cumulative distribution function (CDF) for $\lambda$ is given by
 where the contributions $P_\pm$ correspond to the two cases of
 \Eq{eq:log:likelihood:ratio} and $\mu$ is mentioned explicitly to
 remind that the probabilities are evaluated under the assumption that
-the expectation value of the $x$-distribution is $\mu$.
+the expectation value of the distribution of $x$ is $\mu$.
 
 \paragraph{$\maybebm{P_+}$:}
 The probability contribution $P_+$ can be rewritten using conditional
