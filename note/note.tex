@@ -306,8 +306,11 @@ distributions are readily available in many programming libraries,
 $P_\lambda$ can be easily computed by combining \Eqs{eq:p:plus:prior},
 \eqref{eq:p:plus:conditional:only} and \eqref{eq:p:minus:result} and the
 critical $\lambda$-values, $\lambda_\alpha$, can be approximated by, for
-example, a bisection algorithm to finally calculate the critical
-likelihood-ratio value $c_\alpha = \exp(-2\lambda_\alpha)$.
+example, a bisection algorithm.
+
+According to \Eqs{eq:hnull:rejection} and
+\eqref{eq:critical:value:definition}, the confidence interval consists
+of all values, $\mu$, where $\lambda(\mu,\xm) \leq \lambda_\alpha(\mu)$.
 
 \printbibliography[heading=bibintoc]
 
