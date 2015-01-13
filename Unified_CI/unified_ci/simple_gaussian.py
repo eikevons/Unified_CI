@@ -1,16 +1,18 @@
-"""
-Estimate confidence intervals for mean of a Normal distributed observable
-with known variance and constraint (mu >= 0) using critical values for the
-likelihood ratio.
+"""\
 
-This is meant for comparison with Feldman+Cousins paper.
+Gaussian Unified Confidence Intervals
+-------------------------------------
 
-Functions of interest
+Estimate confidence intervals for the expectation value of a Gaussian
+distributed observable with known variance and constraint (:math:`\mu \geq 0`) using
+critical values for the likelihood ratio :math:`\Lambda` (more precisely :math:`-2\log \Lambda`)
+
+Functions of Interest
 ---------------------
 
 * :func:`confidence_interval`
 * :func:`lower_limit`
-* :func:`upper_limit 
+* :func:`upper_limit`
 """
 
 from scipy import stats
