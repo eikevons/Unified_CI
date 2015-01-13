@@ -5,11 +5,28 @@ likelihood ratio.
 
 This is meant for comparison with Feldman+Cousins paper.
 """
+
 from scipy import stats
 from scipy.optimize import bisect
 
 
-def neg_log_likelihood_ratio_CDF(l, mu, sigma):
+def neg_2_log_likelihood_ratio_CDF(l, mu, sigma):
+    """Calculate the CDF of -2log(likelihood ratio) CDF.
+
+    Parameters
+    ----------
+    l : float
+        The :math:`l = \lambda = -2ln(\Lambda)` value to calculate the CDF at.
+    mu : float
+        The expectation value to test.
+    sigma : float
+        The standard deviation of the distribution.
+
+    Returns
+    -------
+    prob : float (between 0 and 1)
+        The probability :math:`CDF(l) = Prob(\lambda < l)`.
+    """
     p_lz = stats.norm.cdf(0, loc=mu, scale=sigma)
     p_gz = 1 - p_lz
 
@@ -32,13 +49,27 @@ def neg_log_likelihood_ratio_CDF(l, mu, sigma):
 def critical_value(mu_test, sigma, alpha):
     """Estimate the critical value for -2log(likelihood ratio) from bisecting CDF.
 
+    Parameters
+    ----------
+    mu_test : float
+        The assumed expectation value of the distribution to test.
+    sigma : float
+        The standaard deviation of the distribution.
+    alpha : float (between 0 and 1)
+        The significance level (i.e. 1-CL).
+
+    Returns
+    -------
+    sol : float
+        The critical value for :math:`\lambda=-2\log(\Lambda)`.
+
     See
     ---
     Rotes Buch V, p.57--59
     """
     if mu_test > 0.0:
         def target(l):
-            return 1 - alpha - neg_log_likelihood_ratio_CDF(l, mu_test, sigma)
+            return 1 - alpha - neg_2_log_likelihood_ratio_CDF(l, mu_test, sigma)
         a = 0.0
         fa = target(a)
         if fa < 0:
@@ -58,15 +89,20 @@ def critical_value(mu_test, sigma, alpha):
 
     return sol
 
-def neg_log_likelihood_ratio(mu_test, x):
-    """Calculate the likelihood ratio.
+def neg_2_log_likelihood_ratio(mu_test, x):
+    """Calculate -2log(likelihood ratio).
 
     Parameters
     ----------
     mu_test : float
-        The mean-parameter value.
+        The assumed expectation value of the distribution.
     x : float
         The measured value.
+
+    Returns
+    -------
+    lambda : float
+        :math:`\lambda = -2\log(\Lamba)`.
     """
     if x > 0:
         return (x - mu_test)**2
@@ -108,7 +144,7 @@ def upper_limit(x, sigma, cl):
     return sol
 
 def lower_limit(x, sigma, cl):
-    """Calculate the upper limit
+    """Calculate the lower limit of the confidence interval for the expecation value.
 
     Parameters
     ----------
@@ -131,7 +167,7 @@ def lower_limit(x, sigma, cl):
         return 0.0
 
     def diff(mu):
-        return critical_value(mu, sigma, alpha) - neg_log_likelihood_ratio(mu, x)
+        return critical_value(mu, sigma, alpha) - neg_2_log_likelihood_ratio(mu, x)
     assert diff(mu_hat) > 0
 
     if diff(0.0) >= 0.0:
@@ -139,3 +175,24 @@ def lower_limit(x, sigma, cl):
 
     sol = bisect(diff, 0.0, mu_hat)
     return sol
+
+def confidence_interval(x, sigma, cl):
+    """Calculate the confidence interval for the positive-constrained expectation value.
+
+    Parameters
+    ----------
+    x : float
+        The measured value.
+    sigma : float
+        The std.deviation of the distribution.
+    cl : float
+        The confidence level.
+
+    Returns
+    -------
+    ll, ul : float
+        The lower and upper limits of the confidence interval.
+    """
+    ll = lower_limit(x, sigma, cl)
+    ul = upper_limit(x, sigma, cl)
+    return ll, ul
