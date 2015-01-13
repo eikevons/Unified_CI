@@ -4,6 +4,13 @@ with known variance and constraint (mu >= 0) using critical values for the
 likelihood ratio.
 
 This is meant for comparison with Feldman+Cousins paper.
+
+Functions of interest
+---------------------
+
+* :func:`confidence_interval`
+* :func:`lower_limit`
+* :func:`upper_limit 
 """
 
 from scipy import stats
@@ -109,7 +116,14 @@ def neg_2_log_likelihood_ratio(mu_test, x):
     else:
         return mu_test * (mu_test - 2*x)
 
-def best_fit(x):
+def fit_mu(x):
+    """The positive-confined best-fit for the expectation value.
+
+    Parameters
+    ----------
+    x : float
+        The measured value.
+    """
     return max(x, 0.0)
 
 def upper_limit(x, sigma, cl):
@@ -130,7 +144,7 @@ def upper_limit(x, sigma, cl):
         The upper limit of the confidence interval.
     """
     alpha = 1.0 - cl
-    mu_hat = best_fit(x)
+    mu_hat = fit_mu(x)
 
     def diff(mu):
         return critical_value(mu, sigma, alpha) - neg_log_likelihood_ratio(mu, x)
@@ -161,7 +175,7 @@ def lower_limit(x, sigma, cl):
         The lower limit of the confidence interval.
     """
     alpha = 1.0 - cl
-    mu_hat = best_fit(x)
+    mu_hat = fit_mu(x)
 
     if mu_hat == 0.0:
         return 0.0
