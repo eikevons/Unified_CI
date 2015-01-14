@@ -1,7 +1,7 @@
 """\
 
-Gaussian Unified Confidence Intervals
--------------------------------------
+Gaussian Unified Confidence Intervals with *known* variance
+-----------------------------------------------------------
 
 Estimate confidence intervals for the expectation value of a Gaussian
 distributed observable with known variance and constraint (:math:`\mu \geq 0`) using
@@ -72,8 +72,8 @@ def critical_value(mu_test, sigma, alpha):
     sol : float
         The critical value for :math:`\lambda=-2\log(\Lambda)`.
 
-    See
-    ---
+    See also
+    --------
     Rotes Buch V, p.57--59
     """
     if mu_test > 0.0:

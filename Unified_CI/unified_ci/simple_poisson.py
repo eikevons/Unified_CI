@@ -1,6 +1,6 @@
 """\
-Poissonian Unified Confidence Intervals
----------------------------------------
+Poissonian Unified Confidence Intervals with *known* background
+---------------------------------------------------------------
 
 Estimate confidence intervals for the expectation value of a Poissonian
 distributed observable with known Poissonian-distributed background
@@ -11,7 +11,7 @@ Functions of Interest
 
 * :func:`confidence_interval`
 """
-from __future__ import print_function, division, relative_import
+from __future__ import print_function, division, absolute_import
 import numpy as np
 from scipy import stats
 
