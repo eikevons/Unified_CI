@@ -149,7 +149,7 @@ def upper_limit(x, sigma, cl):
     mu_hat = fit_mu(x)
 
     def diff(mu):
-        return critical_value(mu, sigma, alpha) - neg_log_likelihood_ratio(mu, x)
+        return critical_value(mu, sigma, alpha) - neg_2_log_likelihood_ratio(mu, x)
     assert diff(mu_hat) > 0
 
     n = 1

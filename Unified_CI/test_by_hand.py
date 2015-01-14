@@ -1,53 +1,51 @@
 import numpy as np
+from scipy import stats
 import pylab as P
 import statsmodels.api as sm
 from itertools import product, izip, chain
 import multiprocessing
 
-from unified_ci.gaussian import *
-from unified_ci import gaussian
+# from unified_ci.gaussian import *
+from unified_ci import simple_gaussian
 from unified_ci.tools import conservative_quantile
 
 def critical_value_MC(mu_test, sigma, alpha, N_mc=10000):
     """Estimate the critical -2log(likelihood ratio) value from MC sampling."""
-    lrs = np.asarray([neg_log_likelihood_ratio(mu_test, xi, sigma) for xi in stats.norm.rvs(loc=mu_test, scale=sigma, size=N_mc)])
+    lrs = np.asarray([simple_gaussian.neg_2_log_likelihood_ratio(mu_test, xi, sigma) for xi in stats.norm.rvs(loc=mu_test, scale=sigma, size=N_mc)])
 
     return conservative_quantile(lrs, 1-alpha)
 
 def compare_cdf(mu, sigma, lmax=20, N_mc=10000):
     """Compare visually the CDF results from pseudo-analytic calculations and from MC sampling."""
     l = np.linspace(0, lmax, 100)
-    acdf = [neg_log_likelihood_ratio_CDF(li, mu, sigma) for li in l]
-    lams_mc = [neg_log_likelihood_ratio(mu, xi) for xi in stats.norm.rvs(loc=mu, scale=sigma, size=N_mc)]
+    acdf = [simple_gaussian.neg_2_log_likelihood_ratio_CDF(li, mu, sigma) for li in l]
+    lams_mc = [simple_gaussian.neg_2_log_likelihood_ratio(mu, xi) for xi in stats.norm.rvs(loc=mu, scale=sigma, size=N_mc)]
     ecdf = sm.distributions.ECDF(lams_mc)
     P.plot(l, acdf, 'g-', label='analytic')
     P.plot(l, ecdf(l), 'b--', label='MC')
     P.legend(loc="best")
 
 def iflatten(*its):
-    """Flatten 
-
-    Takes an arbitrary number of iterators and yields each item
-
-    """
-    for items in izip(a, b):
+    """Flatten an arbitrary number of iterators."""
+    for items in izip(*its):
         for i in items:
             yield i
 
-def generate_FC_tables():
+def print_FC_Gaussian_tables():
+    """Print out figures of F+C tables for Gaussian distribution."""
     clvls = (0.6827, 0.90, 0.95, 0.99)
     tmpl = "{: .1f}  " + "  ".join(["{:.3f},{:.3f}"] * len(clvls))
     for xi in np.arange(-3.0, 3.15, 0.1):
-        ll = [gaussian.lower_limit(xi, 1.0, cl) for cl in clvls]
-        ul = [gaussian.upper_limit(xi, 1.0, cl) for cl in clvls]
+        ll = [simple_gaussian.lower_limit(xi, 1.0, cl) for cl in clvls]
+        ul = [simple_gaussian.upper_limit(xi, 1.0, cl) for cl in clvls]
         print tmpl.format(xi, *list(chain.from_iterable(izip(ll, ul))))
 
 
 def test_coverage(mu_true, sigma, cl, n_test=1000):
     def test():
         x = np.random.randn() * sigma + mu_true
-        ll = lower_limit(x, sigma, cl)
-        ul = upper_limit(x, sigma, cl)
+        ll = simple_gaussian.lower_limit(x, sigma, cl)
+        ul = simple_gaussian.upper_limit(x, sigma, cl)
         return ll <= mu_true <= ul
 
     succ = sum(test() for i in xrange(n_test))
@@ -117,5 +115,6 @@ def plot_cov_distribution(path):
     P.xlim(bins[[0,-1]])
     P.ylim((0, 1.2 * max(pmf.max(), entries.max())))
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    print_FC_Gaussian_tables()
     # mk_coverage_grid(np.linspace(0, 5, 20), [0.1, 0.5, 0.8, 1.0, 2.0, 10.0], 0.9, 1000)
