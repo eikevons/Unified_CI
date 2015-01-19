@@ -10,6 +10,8 @@ Functions of Interest
 ---------------------
 
 * :func:`confidence_interval`
+* :func:`lower_limit`
+* :func:`upper_limit`
 """
 from __future__ import print_function, division, absolute_import
 import numpy as np
@@ -105,6 +107,78 @@ def critical_value(b, t, alpha):
     raise RuntimeError('this should never raise!')
 
 
+def mk_delta_func(n, b, clvl):
+    """Prepare 'likelihood ratio minus critical value' function."""
+    alpha = 1.0 - clvl
+    cache = {}
+    def delta(t):
+        if t not in cache:
+            r = likelihood_ratio(n, b, t) - critical_value(b, t, alpha)
+            cache[t] = r
+        else:
+            r = cache[t]
+        return r
+    return delta
+
+
+def lower_limit(n, b, clvl, delta=None):
+    """Calculate the lower limit of the confidence interval.
+
+    Parameters
+    ----------
+    n : int
+    b : float
+    clvl : float
+    delta : callable, optional
+    """
+    t_best = fit_theta(n, b)
+
+    if delta is None:
+        delta = mk_delta_func(n, b, clvl)
+
+    if t_best == 0.0 or delta(0.0) >= 0.0:
+        return 0.0
+    else:
+        # NOTE: The standard functions do not work here, because there are
+        # whole intervals where `delta(t) == 0` and we need the *inner* bounds of
+        # these intervals.
+        # t0 = optimize.brentq(f, 0, t_best)
+        # t0 = optimize.bisect(f, 0, t_best, xtol=1e-4)
+        # So we have to use a hand-crafted root-finding.
+        return bisect(delta, t_best, 0)
+
+
+def upper_limit(n, b, clvl, delta=None):
+    """Calculate the upper limit of the confidence interval.
+
+    Parameters
+    ----------
+    n : int
+        The measured value.
+    b : float
+        The background rate.
+    clvl : float
+        The confidence level.
+
+    Returns
+    -------
+    ul : float
+        The upper limits of the confidence interval.
+    """
+    t_best = fit_theta(n, b)
+
+    if delta is None:
+        delta = mk_delta_func(n, b, clvl)
+
+    u = t_best
+    v = max(1.0, 2*u)
+    while delta(v) >= 0:
+        u = v
+        v = 2*u
+    t1 = bisect(delta, u, v)
+    return t1
+
+
 def confidence_interval(n, b, clvl):
     """Calculate the confidence interval for the expectation value.
 
@@ -123,25 +197,11 @@ def confidence_interval(n, b, clvl):
         The lower and upper limits of the confidence interval.
     """
     t_best = fit_theta(n, b)
-    alpha = 1.0 - clvl
 
-    cache = {}
-    # lr - crit_theta
-    def delta(t):
-        if t not in cache:
-            cache[t] = likelihood_ratio(n, b, t) - critical_value(b, t, alpha)
-        return cache[t]
+    delta = mk_delta_func(n, b, clvl)
 
-    if t_best == 0.0 or delta(0.0) >= 0:
-        t0 = 0.0
-    else:
-        # NOTE: The standard functions do not work here, because there are
-        # whole intervals where `f(t) == 0` and we need the *inner* bounds of
-        # these intervals.
-        # t0 = optimize.brentq(f, 0, t_best)
-        # t0 = optimize.bisect(f, 0, t_best, xtol=1e-4)
-        # So we have to use a hand-crafted root-finding.
-        t0 = bisect(delta, t_best, 0)
+    t0 = lower_limit(n, b, clvl, delta)
+    t1 = upper_limit(b, b, clvl, delta)
 
     u = t_best
     v = max(1.0, 2*u)
