@@ -96,7 +96,7 @@ class TestSimpleGaussian(unittest.TestCase):
         self.assertDifferenceCompatFC(4.36, simple_gaussian.upper_limit(2.4, 1.0, 0.95))
         self.assertDifferenceCompatFC(4.98, simple_gaussian.upper_limit(2.4, 1.0, 0.99))
 
-class TestSimplePoissonian(unittest.TestCase):
+class TestSimplePoissonian(TestSimpleGaussian):
     def assertLowerLimitCompatFC(self, a, b, msg=None):
         """Test that `b` truncated to 2 digits is `a`.
 
@@ -135,6 +135,7 @@ class TestSimplePoissonian(unittest.TestCase):
         n = 3
         # TODO: self.assertLowerLimitCompatFC(1.10, simple_poisson.lower_limit(n, 0.0, CL))
         #XXX-MISS(0.81) self.assertLowerLimitCompatFC(0.80, simple_poisson.lower_limit(3, 0.5, CL))
+        self.assertDifferenceCompatFC(0.81, simple_poisson.lower_limit(3, 0.5, CL))
         self.assertLowerLimitCompatFC(0.54, simple_poisson.lower_limit(n, 1.0, CL))
         #MISS self.assertLowerLimitCompatFC(0.32, simple_poisson.lower_limit(n, 1.5, CL))
         self.assertGreater(0.32, simple_poisson.lower_limit(n, 1.5, CL))
@@ -169,8 +170,197 @@ class TestSimplePoissonian(unittest.TestCase):
         self.assertGreater(0.20, simple_poisson.lower_limit(n, 3.5, CL))
         self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 4.0, CL))
 
-        # TODO: add more tests
+        n = 6
+        # TODO: self.assertLowerLimitCompatFC(3.82, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(3.32, simple_poisson.lower_limit(n, 0.5, CL))
+        #XXX-MISS(2.83) self.assertLowerLimitCompatFC(2.82, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertDifferenceCompatFC(2.83, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(2.32, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertLowerLimitCompatFC(1.82, simple_poisson.lower_limit(n, 2.0, CL))
+        #XXX-MISS(1.38) self.assertLowerLimitCompatFC(1.37, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertDifferenceCompatFC(1.38, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertLowerLimitCompatFC(1.01, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertLowerLimitCompatFC(0.62, simple_poisson.lower_limit(n, 3.5, CL))
+        #MISS(0.0) self.assertLowerLimitCompatFC(0.36, simple_poisson.lower_limit(n, 4.0, CL))
+        self.assertGreater(0.36, simple_poisson.lower_limit(n, 4.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 5.0, CL))
 
+        n = 7
+        # TODO: self.assertLowerLimitCompatFC(4.25, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertLowerLimitCompatFC(3.25, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(2.75, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertLowerLimitCompatFC(2.25, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertLowerLimitCompatFC(1.80, simple_poisson.lower_limit(n, 2.5, CL))
+        #MISS(1.42) self.assertLowerLimitCompatFC(1.41, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertDifferenceCompatFC(1.42, simple_poisson.lower_limit(n, 3.0, CL))
+        #MISS(1.08) self.assertLowerLimitCompatFC(1.09, simple_poisson.lower_limit(n, 3.5, CL))
+        self.assertGreater(1.09, simple_poisson.lower_limit(n, 3.5, CL))
+        #MISS(0.80) self.assertLowerLimitCompatFC(0.81, simple_poisson.lower_limit(n, 4.0, CL))
+        self.assertGreater(0.81, simple_poisson.lower_limit(n, 4.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.32, simple_poisson.lower_limit(n, 5.0, CL))
+        self.assertGreater(0.32, simple_poisson.lower_limit(n, 5.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 6.0, CL))
+
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        # self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.5, CL))
+        # self.assertLowerLimitCompatFC(3.25, simple_poisson.lower_limit(n, 1.0, CL))
+        # self.assertLowerLimitCompatFC(2.75, simple_poisson.lower_limit(n, 1.5, CL))
+        # self.assertLowerLimitCompatFC(2.25, simple_poisson.lower_limit(n, 2.0, CL))
+        # self.assertLowerLimitCompatFC(1.80, simple_poisson.lower_limit(n, 2.5, CL))
+        # self.assertLowerLimitCompatFC(1.41, simple_poisson.lower_limit(n, 3.0, CL))
+        # self.assertLowerLimitCompatFC(1.09, simple_poisson.lower_limit(n, 3.5, CL))
+        # self.assertLowerLimitCompatFC(0.81, simple_poisson.lower_limit(n, 4.0, CL))
+        # self.assertLowerLimitCompatFC(0.32, simple_poisson.lower_limit(n, 5.0, CL))
+        # self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 6.0, CL))
+
+        CL = 0.90
+
+        n = 0
+        # TODO: self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 0.0, CL))
+
+        n = 1
+        # TODO: self.assertLowerLimitCompatFC(0.11, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 0.5, CL))
+        
+        n = 2
+        # TODO: self.assertLowerLimitCompatFC(0.53, simple_poisson.lower_limit(n, 0.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.03, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertGreater(0.03, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 1.0, CL))
+
+        n = 3
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(0.60, simple_poisson.lower_limit(n, 0.5, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.10, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertGreater(0.10, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 1.5, CL))
+
+        n = 4
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        #MISS(1.16) self.assertLowerLimitCompatFC(1.17, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertGreater(1.17, simple_poisson.lower_limit(n, 0.5, CL))
+        #XXX-MISS(0.75) self.assertLowerLimitCompatFC(0.74, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertDifferenceCompatFC(0.75, simple_poisson.lower_limit(n, 1.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.24, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertGreater(0.24, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 2.0, CL))
+
+        n = 5
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(1.53, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertLowerLimitCompatFC(1.25, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(0.93, simple_poisson.lower_limit(n, 1.5, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.43, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 2.5, CL))
+
+        n = 6
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(1.90, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertLowerLimitCompatFC(1.61, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(1.33, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertLowerLimitCompatFC(1.08, simple_poisson.lower_limit(n, 2.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.65, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertGreater(0.65, simple_poisson.lower_limit(n, 2.5, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.15, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertGreater(0.15, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 3.5, CL))
+
+        n = 7
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(3.06, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertLowerLimitCompatFC(2.56, simple_poisson.lower_limit(n, 1.0, CL))
+        #MISS(2.08) self.assertLowerLimitCompatFC(2.09, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertGreater(2.09, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertLowerLimitCompatFC(1.59, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertLowerLimitCompatFC(1.18, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertLowerLimitCompatFC(0.89, simple_poisson.lower_limit(n, 3.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.39, simple_poisson.lower_limit(n, 3.5, CL))
+        self.assertGreater(0.39, simple_poisson.lower_limit(n, 3.5, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 4.0, CL))
+        # self.assertLowerLimitCompatFC(0.32, simple_poisson.lower_limit(n, 5.0, CL))
+        # self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 6.0, CL))
+
+        n = 8
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(3.46, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertLowerLimitCompatFC(2.96, simple_poisson.lower_limit(n, 1.0, CL))
+        #XXX-MISS(2.52) self.assertLowerLimitCompatFC(2.51, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertDifferenceCompatFC(2.52, simple_poisson.lower_limit(n, 1.5, CL))
+        #MISS(2.13) self.assertLowerLimitCompatFC(2.14, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertGreater(2.14, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertLowerLimitCompatFC(1.81, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertLowerLimitCompatFC(1.51, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertLowerLimitCompatFC(1.06, simple_poisson.lower_limit(n, 3.5, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.66, simple_poisson.lower_limit(n, 4.0, CL))
+        self.assertGreater(0.66, simple_poisson.lower_limit(n, 4.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 5.0, CL))
+
+        n = 9
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        #MISS(3.85) self.assertLowerLimitCompatFC(3.86, simple_poisson.lower_limit(n, 0.5, CL))
+        self.assertGreater(3.86, simple_poisson.lower_limit(n, 0.5, CL))
+        #MISS(3.35) self.assertLowerLimitCompatFC(3.36, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertGreater(3.36, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(2.91, simple_poisson.lower_limit(n, 1.5, CL))
+        #MISS(2.52) self.assertLowerLimitCompatFC(2.53, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertGreater(2.53, simple_poisson.lower_limit(n, 2.0, CL))
+        #MISS(2.18) self.assertLowerLimitCompatFC(2.19, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertGreater(2.19, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertLowerLimitCompatFC(1.88, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertLowerLimitCompatFC(1.59, simple_poisson.lower_limit(n, 3.5, CL))
+        self.assertLowerLimitCompatFC(1.33, simple_poisson.lower_limit(n, 4.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.43, simple_poisson.lower_limit(n, 5.0, CL))
+        self.assertGreater(0.43, simple_poisson.lower_limit(n, 5.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 6.0, CL))
+
+        n = 15
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(8.98, simple_poisson.lower_limit(n, 0.5, CL))
+        #XXX-MISS(8.49) self.assertLowerLimitCompatFC(8.48, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertDifferenceCompatFC(8.49, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(7.98, simple_poisson.lower_limit(n, 1.5, CL))
+        #XXX-MISS(7.49) self.assertLowerLimitCompatFC(7.48, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertDifferenceCompatFC(7.49, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertLowerLimitCompatFC(6.98, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertLowerLimitCompatFC(6.48, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertLowerLimitCompatFC(5.98, simple_poisson.lower_limit(n, 3.5, CL))
+        self.assertLowerLimitCompatFC(5.48, simple_poisson.lower_limit(n, 4.0, CL))
+        #XXX-MISS(4.49) self.assertLowerLimitCompatFC(4.48, simple_poisson.lower_limit(n, 5.0, CL))
+        self.assertDifferenceCompatFC(4.49, simple_poisson.lower_limit(n, 5.0, CL))
+        self.assertLowerLimitCompatFC(3.48, simple_poisson.lower_limit(n, 6.0, CL))
+        #XXX-MISS(2.57) self.assertLowerLimitCompatFC(2.56, simple_poisson.lower_limit(n, 7.0, CL))
+        self.assertDifferenceCompatFC(2.57, simple_poisson.lower_limit(n, 7.0, CL))
+        self.assertLowerLimitCompatFC(1.98, simple_poisson.lower_limit(n, 8.0, CL))
+        self.assertLowerLimitCompatFC(1.26, simple_poisson.lower_limit(n, 9.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.30, simple_poisson.lower_limit(n, 10.0, CL))
+        self.assertGreater(0.30, simple_poisson.lower_limit(n, 10.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 11.0, CL))
+        
+        n = 20
+        # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
+        self.assertLowerLimitCompatFC(13.05, simple_poisson.lower_limit(n, 0.5, CL))
+        #XXX-MISS(12.56) self.assertLowerLimitCompatFC(12.55, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertDifferenceCompatFC(12.56, simple_poisson.lower_limit(n, 1.0, CL))
+        self.assertLowerLimitCompatFC(12.05, simple_poisson.lower_limit(n, 1.5, CL))
+        self.assertLowerLimitCompatFC(11.55, simple_poisson.lower_limit(n, 2.0, CL))
+        self.assertLowerLimitCompatFC(11.05, simple_poisson.lower_limit(n, 2.5, CL))
+        self.assertLowerLimitCompatFC(10.55, simple_poisson.lower_limit(n, 3.0, CL))
+        self.assertLowerLimitCompatFC(10.05, simple_poisson.lower_limit(n, 3.5, CL))
+        self.assertLowerLimitCompatFC(9.55, simple_poisson.lower_limit(n, 4.0, CL))
+        self.assertLowerLimitCompatFC(8.55, simple_poisson.lower_limit(n, 5.0, CL))
+        self.assertLowerLimitCompatFC(7.55, simple_poisson.lower_limit(n, 6.0, CL))
+        self.assertLowerLimitCompatFC(6.55, simple_poisson.lower_limit(n, 7.0, CL))
+        self.assertLowerLimitCompatFC(5.55, simple_poisson.lower_limit(n, 8.0, CL))
+        self.assertLowerLimitCompatFC(4.55, simple_poisson.lower_limit(n, 9.0, CL))
+        self.assertLowerLimitCompatFC(3.55, simple_poisson.lower_limit(n, 10.0, CL))
+        self.assertLowerLimitCompatFC(2.81, simple_poisson.lower_limit(n, 11.0, CL))
+        self.assertLowerLimitCompatFC(2.23, simple_poisson.lower_limit(n, 12.0, CL))
+        self.assertLowerLimitCompatFC(1.48, simple_poisson.lower_limit(n, 13.0, CL))
+        #MISS(0.00) self.assertLowerLimitCompatFC(0.53, simple_poisson.lower_limit(n, 14.0, CL))
+        self.assertGreater(0.53, simple_poisson.lower_limit(n, 14.0, CL))
+        self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 15.0, CL))
 
 if __name__ == "__main__":
     unittest.main()
