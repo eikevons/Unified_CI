@@ -59,10 +59,10 @@ def conservative_quantile(x, p):
     """Calculate upper/lower tail conservative quantiles.
 
     Conservative lower quantile means that the lower tail probability is
-    ensured (:math:`Pr{x_i <= q} >= p`).
+    ensured (:math:`Prob(x_i <= q) >= p`).
 
     Conservative upper quantile means that the upper tail probability is
-    ensured (:math:`Pr{x_i <= q} <= p <=> Pr{x_i >= q} >= (1-p)`).
+    ensured (:math:`Prob(x_i <= q) <= p <=> Prob(x_i >= q) >= (1-p)`).
 
     Parameters
     ----------

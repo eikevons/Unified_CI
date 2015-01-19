@@ -12,6 +12,10 @@ Functions of Interest
 * :func:`confidence_interval`
 * :func:`lower_limit`
 * :func:`upper_limit`
+
+Todo
+----
+Treat `b == 0`.
 """
 from __future__ import print_function, division, absolute_import
 import numpy as np
@@ -63,8 +67,8 @@ def critical_value(b, t, alpha):
 
     The critical theta value is defined by:
 
-    ..math::
-        Prob{ L < L_{{crit}}; t} <= 1 - clvl
+    .. math::
+        Prob( L < L_{{crit}}; t) <= 1 - clvl
 
     Parameters
     ----------
@@ -215,54 +219,11 @@ def confidence_interval(n, b, clvl):
 
 ##############################
 ## TESTS
+from .tools import conservative_quantile
 import itertools
 import operator
 
 
-def conservative_quantile(x, p):
-    """Calculate conservative quantiles.
-
-    Conservative quantile means that the lower tail frequency is
-    ensured (:math:`Pr{x_i <= q} >= p`).
-
-    Conservative upper quantile means that the upper tail frequency is
-    ensured (:math:`Pr{x_i >= q} >= 1-p`).
-
-    Parameters
-    ----------
-    x : ndarray-like
-        The data sample.
-    p : float or ndarray of floats
-        The target lower-tail frequency `0 <= p <= 1`.
-
-    Returns
-    -------
-    q : float of ndarray of floats
-        The quantile values.
-    n : int
-        The number of unique values in `x`.
-    """
-    if np.any(np.logical_or(p < 0, p > 1)):
-        raise ValueError("Probability must be between 0 and 1")
-
-    x = np.asarray(x)
-    if x.ndim != 1:
-        raise ValueError("Data sample must be 1-dim")
-
-    items, freqs = itemfreq(x).T
-
-    cumfreq = np.cumsum(freqs / x.size)
-
-    if np.isscalar(p):
-        i = np.where(cumfreq >= p)[0][0]
-        return items[i], len(items)
-
-    else:
-        r = np.empty(len(p), dtype=x.dtype)
-        for k, pk in enumerate(p):
-            i = np.where(cumfreq >= p)[0][0]
-            r[k] = items[i]
-        return r, len(items)
 
 
 def critical_theta_mc(b, t, clvl, N_mc):
