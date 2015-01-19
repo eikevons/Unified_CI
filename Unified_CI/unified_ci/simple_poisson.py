@@ -68,7 +68,7 @@ def critical_value(b, t, alpha):
     The critical theta value is defined by:
 
     .. math::
-        Prob( L < L_{{crit}}; t) <= 1 - clvl
+        Prob( L < L_{{crit}}; t) <= \alpha = 1 - clvl
 
     Parameters
     ----------
@@ -76,8 +76,8 @@ def critical_value(b, t, alpha):
         Background rate.
     t : float
         Signal rate.
-    clvl : float
-        Confidence level.
+    alpha : float
+        Lower-tail probability (:math:`\alpha = 1 - clvl`).
 
     Returns
     -------
@@ -226,7 +226,7 @@ import operator
 
 
 
-def critical_theta_mc(b, t, clvl, N_mc):
+def critical_theta_mc(b, t, alpha, N_mc):
     """Estimate the critical c_theta value from MC sampling.
 
     Parameters
@@ -235,15 +235,17 @@ def critical_theta_mc(b, t, clvl, N_mc):
         The background rate.
     t : float
         The theta value to test.
-    clvl : float
-        The confidence level.
+    alpha : float
+        1-clvl
     N_mc : int
         The Monte Carlo sample size.
     """
     n_sample = np.random.poisson(t+b, size=N_mc)
     lr = likelihood_ratio(n_sample, b, t)
 
-    return conservative_quantile(lr, -(1.0 - clvl))[0]
+    return conservative_quantile(lr, -alpha)[0]
+
+# critical_value = lambda b, t, alpha: critical_theta_mc(b, t, alpha, 10000)
 
 
 def compare_crit_thetas(bs, ts):
@@ -253,8 +255,9 @@ def compare_crit_thetas(bs, ts):
             continue
         print('b={}  t={}'.format(b, t))
         for clvl in (0.5, 0.6832, 0.9, 0.95, 0.99):
-            an = critical_value(b, t, clvl)
-            mc = critical_theta_mc(b, t, clvl, 10000)
+            alpha = 1.0 - clvl
+            an = critical_value_an(b, t, alpha)
+            mc = critical_theta_mc(b, t, alpha, 10000)
             print('analytic: {}  mc: {}'.format(an, mc))
 
 
