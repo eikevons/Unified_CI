@@ -11,6 +11,8 @@ Functions of Interest
 ---------------------
 
 * :func:`confidence_interval`
+* :func:`lower_limit`
+* :func:`upper_limit`
 """
 # Use float division
 from __future__ import print_function, division, absolute_import
@@ -141,6 +143,75 @@ def critical_value(n, m, theta, gamma, clvl, N_mc):
     return conservative_quantile(l, -(1.0 - clvl))[0]
 
 
+def mk_delta_func(n, m, gamma, clvl):
+    cache = {}
+    def delta(theta, n_mc):
+        k = (theta, n_mc)
+        if k not in cache:
+            ret =  likelihood_ratio(n, m, theta, gamma) - critical_value(n, m, theta, gamma, clvl, n_mc)
+            cache[k] = ret
+        else:
+            ret = cache[k]
+        return ret
+    delta.cache = cache
+    return delta
+
+
+def lower_limit(n, m, gamma, clvl, N_mc, delta=None):
+    """Calculate the lower limit of the confidence interval.
+
+    Parameters
+    ----------
+    n : int
+    m : int
+    gamma : float
+    clvl : float
+    N_mc : int
+    delta : callable, optional
+    """
+    theta_best = global_fit_theta(n, m, gamma)
+
+    if delta is None:
+        delta = mk_delta_func(n, m, gamma, clvl)
+
+    if theta_best == 0.0 or delta(0.0) >= 0.0:
+        return 0.0
+    else:
+        # NOTE: The standard functions do not work here, because there are
+        # whole intervals where `delta(t) == 0` and we need the *inner* bounds of
+        # these intervals.
+        # t0 = optimize.brentq(f, 0, t_best)
+        # t0 = optimize.bisect(f, 0, t_best, xtol=1e-4)
+        # So we have to use a hand-crafted root-finding.
+        return bisect(delta, theta_best, 0)
+
+def upper_limit(n, m, gamma, clvl, N_mc, delta=None):
+    """Calculate the upper limit of the confidence interval.
+
+    Parameters
+    ----------
+    n : int
+    m : int
+    gamma : float
+    clvl : float
+    N_mc : int
+    delta : callable, optional
+    """
+    theta_best = global_fit_theta(n, m, gamma)
+
+    if delta is None:
+        delta = mk_delta_func(n, m, gamma, clvl)
+
+    u = theta_best
+    v = max(1, 2*u)
+    while delta(v, N_mc) > 0:
+        u = v
+        v = 2*u
+
+    return bisect(delta, u, v, args=(N_mc,))
+
+
+
 def confidence_interval(n, m, gamma, clvl, N_mc):
     """Calculate unified confidence interval for Poissonian signal with unknown background.
 
@@ -163,29 +234,9 @@ def confidence_interval(n, m, gamma, clvl, N_mc):
     ll, ul : float
         Lower and upper limits of the confidence interval.
     """
-    theta_best = global_fit_theta(n, m, gamma)
-
-    cache = {}
-    def f(theta, n_mc):
-        k = (theta, n_mc)
-        if k not in cache:
-            ret =  likelihood_ratio(n, m, theta, gamma) - critical_value(n, m, theta, gamma, clvl, n_mc)
-            cache[k] = ret
-        else:
-            ret = cache[k]
-        return ret
-
-    t0 = 0.0
-    if theta_best > 0 and f(0, N_mc) < 0:
-        t0 = bisect(f, theta_best, 0, args=(N_mc,))
-
-    u = theta_best
-    v = max(1, 2*u)
-    while f(v, N_mc) > 0:
-        u = v
-        v = 2*u
-
-    t1 = bisect(f, u, v, args=(N_mc,))
+    delta = mk_delta_func(n, m, gamma, clvl)
+    t0 = lower_limit(n, m, gamma, clvl, delta)
+    t1 = upper_limit(n, m, gamma, clvl, delta)
     return t0, t1
 
 
