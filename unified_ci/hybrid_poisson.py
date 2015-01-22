@@ -36,7 +36,7 @@ def global_fit_b(n, m, gamma):
     Returns
     -------
     b_fit : float
-        The fitted background-rate value.
+        The fitted background-rate in signal region.
     """
     return (m + n - global_fit_theta(n, m, gamma)) / (1.0 + gamma)
 
@@ -80,7 +80,7 @@ def local_fit_b(n, m, theta, gamma):
     Returns
     -------
     b_fit : float
-        The fitted background-rate value assuming signal rate `theta`.
+        The fitted background-rate in signal region value assuming signal rate `theta`.
     """
     return (m + n - (1+gamma)*theta + np.sqrt( ((1+gamma)*theta - m - n)**2 + 4*(1+gamma)*m*theta )) / (2 * (1+gamma))
 
@@ -174,7 +174,7 @@ def lower_limit(n, m, gamma, clvl, N_mc, delta=None):
     if delta is None:
         delta = mk_delta_func(n, m, gamma, clvl)
 
-    if theta_best == 0.0 or delta(0.0) >= 0.0:
+    if theta_best == 0.0 or delta(0.0, N_mc) >= 0.0:
         return 0.0
     else:
         # NOTE: The standard functions do not work here, because there are
@@ -183,7 +183,7 @@ def lower_limit(n, m, gamma, clvl, N_mc, delta=None):
         # t0 = optimize.brentq(f, 0, t_best)
         # t0 = optimize.bisect(f, 0, t_best, xtol=1e-4)
         # So we have to use a hand-crafted root-finding.
-        return bisect(delta, theta_best, 0)
+        return bisect(delta, theta_best, 0, args=(N_mc,))
 
 def upper_limit(n, m, gamma, clvl, N_mc, delta=None):
     """Calculate the upper limit of the confidence interval.
@@ -235,8 +235,8 @@ def confidence_interval(n, m, gamma, clvl, N_mc):
         Lower and upper limits of the confidence interval.
     """
     delta = mk_delta_func(n, m, gamma, clvl)
-    t0 = lower_limit(n, m, gamma, clvl, delta)
-    t1 = upper_limit(n, m, gamma, clvl, delta)
+    t0 = lower_limit(n, m, gamma, clvl, N_mc, delta)
+    t1 = upper_limit(n, m, gamma, clvl, N_mc, delta)
     return t0, t1
 
 
