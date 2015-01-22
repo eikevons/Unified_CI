@@ -43,6 +43,13 @@ class TestSimpleGaussian(unittest.TestCase):
         """
         self.assertGreater(0.005, abs(a - b), msg="absolute difference between {0!r} and {1!r} above 0.005".format(a, b))
 
+    def test_confidence_interval(self):
+        """Test that confidence_interval and {lower,upper}_limit() are giving consistent results."""
+        p = (1.0, 1.5, 0.9)
+        ll = simple_gaussian.lower_limit(*p)
+        ul = simple_gaussian.upper_limit(*p)
+        self.assertTupleEqual((ll, ul), simple_gaussian.confidence_interval(*p))
+
     def DIStest_lower_limit_against_FC_paper(self):
         """Test lower_limit against Table X of Feldman+Cousins paper."""
         self.assertDifferenceCompatFC(0.0, simple_gaussian.lower_limit(-2.3, 1.0, 0.6827))
@@ -143,6 +150,13 @@ class TestSimplePoissonian(TestSimpleGaussian):
 
         b_trunc = float(dec + '.' + frac[:2]) + 0.01
         return self.assertAlmostEqual(a, b_trunc, msg=msg)
+
+    def test_confidence_interval(self):
+        """Test that confidence_interval and {lower,upper}_limit() are giving consistent results."""
+        p = (1, 1.5, 0.9)
+        ll = simple_poisson.lower_limit(*p)
+        ul = simple_poisson.upper_limit(*p)
+        self.assertTupleEqual((ll, ul), simple_poisson.confidence_interval(*p))
 
     # Note:
     # - The parameters deactivated by "#MISS(calculated_value)" differ
