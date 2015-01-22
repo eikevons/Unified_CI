@@ -200,20 +200,9 @@ def confidence_interval(n, b, clvl):
     ll, ul : float
         The lower and upper limits of the confidence interval.
     """
-    t_best = fit_theta(n, b)
-
     delta = mk_delta_func(n, b, clvl)
-
     t0 = lower_limit(n, b, clvl, delta)
-    t1 = upper_limit(b, b, clvl, delta)
-
-    u = t_best
-    v = max(1.0, 2*u)
-    while delta(v) >= 0:
-        u = v
-        v = 2*u
-    t1 = bisect(delta, u, v)
-
+    t1 = upper_limit(n, b, clvl, delta)
     return t0, t1
 
 
