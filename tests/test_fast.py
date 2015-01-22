@@ -1,5 +1,6 @@
 import unittest
 
+import context
 from unified_ci import tools, simple_gaussian, simple_poisson
 
 class TestTools(unittest.TestCase):
