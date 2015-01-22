@@ -9,9 +9,9 @@ BUILDDIR      = _build
 
 # EIKE: add work directory to PYTHONPATH
 ifeq ($(PYTHONPATH),)
-    export PYTHONPATH := ../Unified_CI
+    export PYTHONPATH := ..
 else
-    export PYTHONPATH := ../Unified_CI:$(PYTHONPATH)
+    export PYTHONPATH := ..:$(PYTHONPATH)
 endif
 
 # User-friendly check for sphinx-build
@@ -184,4 +184,4 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 apidoc:
-	sphinx-apidoc --no-toc --force -o . ../Unified_CI/unified_ci
+	sphinx-apidoc --no-toc --force -o . ../unified_ci
