@@ -18,6 +18,8 @@ Functions of Interest
 from scipy import stats
 from scipy.optimize import bisect
 
+from scipy import special
+
 
 def neg_2_log_likelihood_ratio_CDF(l, mu, sigma):
     """Calculate the CDF of -2log(likelihood ratio) CDF.
@@ -36,21 +38,26 @@ def neg_2_log_likelihood_ratio_CDF(l, mu, sigma):
     prob : float (between 0 and 1)
         The probability :math:`CDF(l) = Prob(\lambda < l)`.
     """
-    p_lz = stats.norm.cdf(0, loc=mu, scale=sigma)
+    # p_lz = stats.norm.cdf(0, loc=mu, scale=sigma)
+    p_lz = special.ndtr(-mu/sigma)
     p_gz = 1 - p_lz
 
     l_crit = mu**2 / sigma**2
-    chi2 = stats.chi2(1)
-    nu = chi2.cdf(l_crit)
+    # chi2 = stats.chi2(1)
+    # nu = chi2.cdf(l_crit)
+    nu = special.chdtr(1, l_crit)
 
     if l < l_crit:
-        p_plus = p_gz * 2 * chi2.cdf(l) / (1.0 + nu)
+        # p_plus = p_gz * 2 * chi2.cdf(l) / (1.0 + nu)
+        p_plus = p_gz * 2 * special.chdtr(1, l) / (1.0 + nu)
     else:
-        p_plus = p_gz * (chi2.cdf(l) + nu) / (1.0 + nu)
+        # p_plus = p_gz * (chi2.cdf(l) + nu) / (1.0 + nu)
+        p_plus = p_gz * (special.chdtr(1, l) + nu) / (1.0 + nu)
 
     tau = 0.5 * sigma**2 / mu * (mu**2 / sigma**2 - l)
     if tau < 0:
-        p_minus = p_lz - stats.norm.cdf(tau, loc=mu, scale=sigma)
+        # p_minus = p_lz - stats.norm.cdf(tau, loc=mu, scale=sigma)
+        p_minus = p_lz - special.ndtr((tau-mu)/sigma)
     else:
         p_minus = 0
     return p_plus + p_minus
