@@ -100,7 +100,7 @@ def critical_value(mu_test, sigma, alpha):
         t = 1.0 - alpha / p_gz
         if t > 0:
             # sol = stats.chi2.ppf(1.0 - alpha / p_gz, 1)
-            sol = special.chdtri(1, alpha / p_gz, 1)
+            sol = special.chdtri(1, alpha / p_gz)
         else:
             print 'encountered questionable value < 0.0'
             sol = 0.0
