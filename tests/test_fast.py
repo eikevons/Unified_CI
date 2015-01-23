@@ -50,7 +50,7 @@ class TestSimpleGaussian(unittest.TestCase):
         ul = simple_gaussian.upper_limit(*p)
         self.assertTupleEqual((ll, ul), simple_gaussian.confidence_interval(*p))
 
-    def DIStest_lower_limit_against_FC_paper(self):
+    def test_lower_limit_against_FC_paper(self):
         """Test lower_limit against Table X of Feldman+Cousins paper."""
         self.assertDifferenceCompatFC(0.0, simple_gaussian.lower_limit(-2.3, 1.0, 0.6827))
         self.assertDifferenceCompatFC(0.0, simple_gaussian.lower_limit(-2.3, 1.0, 0.90))
@@ -77,7 +77,7 @@ class TestSimpleGaussian(unittest.TestCase):
         self.assertDifferenceCompatFC(0.69, simple_gaussian.lower_limit(2.4, 1.0, 0.95))
         self.assertDifferenceCompatFC(0.07, simple_gaussian.lower_limit(2.4, 1.0, 0.99))
 
-    def DIStest_upper_limit_against_FC_paper(self):
+    def test_upper_limit_against_FC_paper(self):
         """Test upper_limit against Table X of Feldman+Cousins paper."""
         self.assertDifferenceCompatFC(0.05, simple_gaussian.upper_limit(-2.3, 1.0, 0.6827))
         self.assertDifferenceCompatFC(0.34, simple_gaussian.upper_limit(-2.3, 1.0, 0.90))
@@ -167,7 +167,7 @@ class TestSimplePoissonian(TestSimpleGaussian):
     #   but usually only by 0.01. I assume it's some numerics in this or
     #   their code.
 
-    def DIStest_lower_limit_against_FC_paper_CL06827(self):
+    def test_lower_limit_against_FC_paper_CL06827(self):
         CL = 0.6827
 
         n = 0
@@ -268,7 +268,7 @@ class TestSimplePoissonian(TestSimpleGaussian):
         # self.assertLowerLimitCompatFC(0.32, simple_poisson.lower_limit(n, 5.0, CL))
         # self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 6.0, CL))
 
-    def DIStest_lower_limit_against_FC_paper_CL090(self):
+    def test_lower_limit_against_FC_paper_CL090(self):
         CL = 0.90
 
         n = 0
@@ -417,7 +417,7 @@ class TestSimplePoissonian(TestSimpleGaussian):
         self.assertGreater(0.53, simple_poisson.lower_limit(n, 14.0, CL))
         self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 15.0, CL))
 
-    def DIStest_lower_limit_against_FC_paper_CL095(self):
+    def test_lower_limit_against_FC_paper_CL095(self):
         CL = 0.95
 
         n = 1
@@ -564,7 +564,7 @@ class TestSimplePoissonian(TestSimpleGaussian):
         self.assertGreater(0.25, simple_poisson.lower_limit(n, 13.0, CL))
         self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 14.0, CL))
 
-    def DIStest_lower_limit_against_FC_paper_CL099(self):
+    def test_lower_limit_against_FC_paper_CL099(self):
         CL = 0.99
         # n = 0
         # TODO: self.assertLowerLimitCompatFC(3.75, simple_poisson.lower_limit(n, 0.0, CL))
@@ -694,7 +694,7 @@ class TestSimplePoissonian(TestSimpleGaussian):
         self.assertGreater(0.08, simple_poisson.lower_limit(n, 11.0, CL))
         self.assertLowerLimitCompatFC(0.00, simple_poisson.lower_limit(n, 12.0, CL))
 
-    def DIStest_upper_limit_against_FC_paper_CL06827(self):
+    def test_upper_limit_against_FC_paper_CL06827(self):
         """Test the results of `simple_poisson.upper_limit()` against the tabulated values of F+C.
 
         For n=0 to 5 and n=10,15,20 we test all values of b in the tables
