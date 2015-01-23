@@ -4,13 +4,15 @@ Estimate the coverage of unified confidence intervals.
 Usage: coverages_simple.py COMMAND ARGS
 
 Possible COMMANDs:
-    poisson     to calculate a coverage grid for simple_poisson
-    gauss       to calculate a coverage grid for simple_gaussian
-    plot        to plot a coverage grid file
+    simple_poisson  to calculate a coverage grid for simple_poisson
+    simple_gauss    to calculate a coverage grid for simple_gaussian
+    hybrid_poisson  to calculate a coverage grid for hybrid_poisson
+    plot            to plot a coverage grid file
 
 Expected ARGS:
-    - poisson: THETAs Bs CLs NTEST
-    - gauss: MUs SIGMAs CLs NTEST
+    - simple_poisson: THETAs Bs CLs NTEST
+    - simple_gauss: MUs SIGMAs CLs NTEST
+    - hybrid_poisson: THETAs Bs GAMMAs CLs NTEST
     - plot: FILEPATH
 
 The PARAMs are comma separated lists of the respective parameter values or
@@ -28,8 +30,10 @@ import numpy as np
 import context
 from unified_ci.simple_poisson import confidence_interval as simpoi_ci
 from unified_ci.simple_gaussian import confidence_interval as simgau_ci
+from unified_ci.hybrid_poisson import confidence_interval as hybpoi_ci
 
 
+# Argument handling
 def parse_arg(param, parname='unknown'):
     """Parse PARAM argument."""
     try:
@@ -45,44 +49,7 @@ def parse_arg(param, parname='unknown'):
     except Exception as e:
         sys.exit("Failed to parse argument for parameter {}: '{}'\n{}".format(parname, param, e))
 
-
-def _mp_target_simple_gauss(args):
-    mu, sigma, cl, n_test = args
-    n_succ = 0
-    for i in range(n_test):
-        x = np.random.randn() * sigma + mu
-        ll, ul = simgau_ci(x, sigma, cl)
-        if ll <= mu <= ul:
-            n_succ += 1
-    return mu, sigma, cl, n_succ
-
-
-def gauss(mus, sigmas, cls, ntest):
-    mu = parse_arg(mus, "MUs")
-    sigma = parse_arg(sigmas, "SIGMAs")
-    cl = parse_arg(cls, "CLs")
-    try:
-        N_mc = int(ntest)
-    except ValueError:
-        sys.exit("Failed to parse argument for parameter NTEST: '{}'".format(ntest))
-
-    print("# mu:    {0!r}".format(mu))
-    print("# sigma: {0!r}".format(sigma))
-    print("# cl:    {0!r}".format(cl))
-    print("# ntest: {0!r}".format(N_mc))
-    print("# mu  sigma  cl  N_success")
-
-    arggen = ((x, y, z, N_mc) for (x, y, z) in product(mu, sigma, cl))
-    p = multiprocessing.Pool()
-    results = p.imap(_mp_target_simple_gauss, arggen)
-
-    r0 = results.next()
-    template = "  ".join(((len(r0) - 1) * ("{:.5e}",)) + ("{:d}",))
-    print(template.format(*r0))
-    for r in results:
-        print(template.format(*r))
-
-
+# Confidence grid computation
 def _mp_target_simple_poisson(args):
     theta, b, cl, n_test = args
     n_succ = 0
@@ -93,8 +60,7 @@ def _mp_target_simple_poisson(args):
             n_succ += 1
     return theta, b, cl, n_succ
 
-
-def poisson(thetas, bs, cls, ntest):
+def simple_poisson(thetas, bs, cls, ntest):
     theta = parse_arg(thetas, "THETAs")
     b = parse_arg(bs, "Bs")
     cl = parse_arg(cls, "CLs")
@@ -119,6 +85,81 @@ def poisson(thetas, bs, cls, ntest):
     for r in results:
         print(template.format(*r))
 
+def _mp_target_simple_gauss(args):
+    mu, sigma, cl, n_test = args
+    n_succ = 0
+    for i in range(n_test):
+        x = np.random.randn() * sigma + mu
+        ll, ul = simgau_ci(x, sigma, cl)
+        if ll <= mu <= ul:
+            n_succ += 1
+    return mu, sigma, cl, n_succ
+
+def simple_gauss(mus, sigmas, cls, ntest):
+    mu = parse_arg(mus, "MUs")
+    sigma = parse_arg(sigmas, "SIGMAs")
+    cl = parse_arg(cls, "CLs")
+    try:
+        N_mc = int(ntest)
+    except ValueError:
+        sys.exit("Failed to parse argument for parameter NTEST: '{}'".format(ntest))
+
+    print("# mu:    {0!r}".format(mu))
+    print("# sigma: {0!r}".format(sigma))
+    print("# cl:    {0!r}".format(cl))
+    print("# ntest: {0!r}".format(N_mc))
+    print("# mu  sigma  cl  N_success")
+
+    arggen = ((x, y, z, N_mc) for (x, y, z) in product(mu, sigma, cl))
+    p = multiprocessing.Pool()
+    results = p.imap(_mp_target_simple_gauss, arggen)
+
+    r0 = results.next()
+    template = "  ".join(((len(r0) - 1) * ("{:.5e}",)) + ("{:d}",))
+    print(template.format(*r0))
+    for r in results:
+        print(template.format(*r))
+
+def _mp_target_hybrid_poisson(args):
+    theta, b, gamma, cl, n_test = args
+    n_succ = 0
+    for i in range(n_test):
+        n = np.random.poisson(theta + b)
+        m = np.random.poisson(gamma * b)
+        ll, ul = hybpoi_ci(n, m, gamma, cl, 10000)
+        if ll <= theta <= ul:
+            n_succ += 1
+    return theta, b, gamma, cl, n_succ
+
+def hybrid_poisson(thetas, bs, gammas, cls, ntest):
+    theta = parse_arg(thetas, "THETAs")
+    b = parse_arg(bs, "Bs")
+    gamma = parse_arg(gammas, "GAMMAs")
+    cl = parse_arg(cls, "CLs")
+    try:
+        N_mc = int(ntest)
+    except ValueError:
+        sys.exit("Failed to parse argument for parameter NTEST: '{}'".format(ntest))
+
+    print("# theta: {0!r}".format(theta))
+    print("# b:     {0!r}".format(b))
+    print("# gamma: {0!r}".format(gamma))
+    print("# cl:    {0!r}".format(cl))
+    print("# ntest: {0!r}".format(N_mc))
+    print("# theta  b  gamma  cl  N_success")
+
+    arggen = (i + (N_mc,) for i in product(theta, b, gamma, cl))
+    p = multiprocessing.Pool()
+    results = p.imap(_mp_target_hybrid_poisson, arggen)
+
+    r0 = results.next()
+    template = "  ".join(((len(r0) - 1) * ("{:.5e}",)) + ("{:d}",))
+    print(template.format(*r0))
+    for r in results:
+        print(template.format(*r))
+
+
+# Visualization
 def load_coverage_file(path):
     params = {}
     with open(path) as fd:
@@ -143,7 +184,6 @@ def calc_cl_uncertainty(target_cl, N_mc):
     """Calculate uncertainty of CL estimated from binomial distribution."""
     print(target_cl, N_mc)
     return np.sqrt(target_cl * (1 - target_cl) / N_mc)
-
 
 def plot(file):
     params, colnames, vals = load_coverage_file(file)
@@ -178,15 +218,9 @@ def plot(file):
     plt.xlim((-0.5, len(upars)-0.5))
     plt.show()
 
-
-
-
-
-
-
-
-commands = {"poisson" : poisson,
-            "gauss" : gauss,
+commands = {"simple_poisson" : simple_poisson,
+            "simple_gauss" : simple_gauss,
+            "hybrid_poisson" : hybrid_poisson,
             "plot": plot
            }
 
@@ -202,7 +236,8 @@ def main():
 
     try:
         commands[cmd](*args)
-    except TypeError:
+    except TypeError as e:
+        print(e)
         sys.exit("\n\n".join((__doc__, "Bad arguments for command '{}': '{}'".format(cmd, ' '.join(args)))))
 
 
