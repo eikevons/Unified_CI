@@ -95,10 +95,12 @@ def critical_value(mu_test, sigma, alpha):
             b = 10*b
         sol = bisect(target, 0.0, b)
     else:
-        p_gz = 1 - stats.norm.cdf(0, loc=mu_test, scale=sigma)
+        # p_gz = 1 - stats.norm.cdf(0, loc=mu_test, scale=sigma)
+        p_gz = 1 - special.ndtr(-mu_test/sigma)
         t = 1.0 - alpha / p_gz
         if t > 0:
-            sol = stats.chi2.ppf(1.0 - alpha / p_gz, 1)
+            # sol = stats.chi2.ppf(1.0 - alpha / p_gz, 1)
+            sol = special.chdtri(1, alpha / p_gz, 1)
         else:
             print 'encountered questionable value < 0.0'
             sol = 0.0
