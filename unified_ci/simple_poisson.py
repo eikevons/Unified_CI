@@ -19,6 +19,7 @@ Treat `b == 0`.
 """
 from __future__ import print_function, division, absolute_import
 import numpy as np
+import logging
 from scipy import stats
 
 from .tools import bisect
@@ -106,7 +107,9 @@ def critical_value(b, t, alpha):
         p_cum += p
         if p_cum >= alpha:
             if i == 0:
-                raise RuntimeError('i==0: algorithm failed!')
+                # TODO: is this the proper way to deal with this?
+                logging.warn('i==0: algorithm failed for b={} t={} alpha={}: accepting overcoverage!'.format(b, t, alpha))
+                return n_p_lr[i][2]
             return n_p_lr[i-1][2]
     raise RuntimeError('this should never raise!')
 
