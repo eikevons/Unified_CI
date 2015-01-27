@@ -189,11 +189,12 @@ def plot(file):
     params, colnames, vals = load_coverage_file(file)
     from matplotlib import pyplot as plt
 
-    target_cls = set()
+    n_MC = params["ntest"]
+    all_target_cls = set()
 
     plt.figure()
     plt.title("coverage grid {}".format(file))
-    # all unique parameter value combinations (the last 2 columns are CL N_success)
+    # all unique parameter value combinations (the last 2 columns are CL and N_success)
     upars = list(product(*[np.unique(vals[:,i]) for i in range(vals.shape[1]-2)]))
     for i, up in enumerate(upars):
         # build index array for this unique parameter combination
@@ -201,21 +202,32 @@ def plot(file):
         for j, p in enumerate(up):
             idx *= (vals[:,j] == p)
 
-        target_cls.update(vals[idx,-2])
-        cl = vals[idx,-1].astype(np.float) / params["ntest"]
-        plt.plot([i] * len(cl), cl, "xk")
+        n_points = idx.sum()
+        n_succ = vals[idx,-1]
+        target_cls = vals[idx,-2]
+        all_target_cls.update(target_cls)
+
+        dx = min(0.6 / n_points, 0.10)
+        x = i + dx * np.arange(n_points) - 0.5 * dx * (n_points - 1)
+
+        plt.vlines(x,
+                target_cls * n_MC, n_succ)
+
+        plt.plot(x, n_succ, "xk")
 
 
-    for target_cl in target_cls:
-        delta_cl = calc_cl_uncertainty(target_cl, params["ntest"])
-        plt.axhline(target_cl, color="g")
-        plt.axhspan(target_cl - delta_cl, target_cl + delta_cl, alpha=0.5, color="g")
+    for target_cl in all_target_cls:
+        delta_cl = calc_cl_uncertainty(target_cl, n_MC)
+        plt.axhline(target_cl * n_MC, color="g")
+        plt.axhspan(n_MC * (target_cl - delta_cl), n_MC * (target_cl + delta_cl), alpha=0.5, color="g")
 
 
     plt.xticks(range(len(upars)), [repr(u) for u in upars], rotation=90)
-    plt.ylabel("confidence level")
+    plt.ylabel("# of properly covering intervals")
     plt.xlabel("-".join(colnames[:-2]) + " combinations")
     plt.xlim((-0.5, len(upars)-0.5))
+    plt.yscale("log")
+    plt.ylim((0.9 * n_MC * min(all_target_cls), 1.1 * n_MC))
     plt.show()
 
 commands = {"simple_poisson" : simple_poisson,
