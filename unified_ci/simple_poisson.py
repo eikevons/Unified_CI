@@ -20,9 +20,68 @@ Treat `b == 0`.
 from __future__ import print_function, division, absolute_import
 import numpy as np
 import logging
-from scipy import stats
+# from scipy import stats
+from scipy import special
 
 from .tools import bisect
+
+def poisson_pmf(k, mu):
+    """Calculate the Poissonian PMF.
+
+    Copied from `scipy.stats.poisson._pmf` and `scipy.stats.poisson._logpmf` 
+    """
+    Pk = k * np.log(mu) - special.gammaln(k + 1) - mu
+    return np.exp(Pk)
+
+def poisson_minor_isf(q_upper, mu):
+    """Calculate the Poissonian "minor" inverse survival function.
+
+    Here, "minor" means that the returned quantile `n` is chosen to be the
+    smallest value where the corresponding upper-tail probability is less
+    than or equal to `q_upper`:
+
+        .. math::
+
+            n = \min {{ k : P(N >= k) <= q_{{upper}} }}
+
+    Parameters
+    ----------
+    q_upper : float
+        The upper tail probability.
+    mu : float
+        The expectation value of the Poisson distribution.
+
+    Returns
+    -------
+    n : int
+        The "minor" quantile.
+    """
+    return np.ceil(special.pdtrik(1.0 - q_upper, mu)).astype(np.int)
+
+
+def poisson_sf(n, mu):
+    """Calculate the upper-tail probability for a Poisson distribution.
+
+    The calculated probability is:
+
+    .. math::
+
+        SF(n) = P(N > n) = 1 - CDF(n)
+
+    Parameters
+    ----------
+    n : int
+        Quantile.
+    mu : 
+        The expectation value of the Poisson distribution.
+
+    Returns
+    -------
+
+    """
+    return special.pdtrc(n, mu)
+
+
 
 def fit_theta(n, b):
     """The positive-confined best-fit for Poissonian signal parameter theta.
@@ -85,7 +144,8 @@ def critical_value(b, t, alpha):
     lr_crit : float
         The critical likelihood ratio value.
     """
-    poi = stats.poisson(b+t)
+    # poi = stats.poisson(b+t)
+    mu = b + t
 
     # Find n_max
     # criteria are
@@ -95,11 +155,15 @@ def critical_value(b, t, alpha):
     #  ==> SF(n_max-1) < p_thresh
     #  ==> n_max = 1 + ISF(p_thresh)
     # NOTE: SF(M) = P[n > M] = P[n >= M+1]
-    p_thresh = min(alpha, poi.pmf(0))
-    n_max = int(poi.isf(p_thresh)) + 1
+    # p_thresh = min(alpha, poi.pmf(0))
+    p_thresh = min(alpha, poisson_pmf(0, mu))
+    # n_max = int(poi.isf(p_thresh)) + 1
+    n_max = poisson_minor_isf(p_thresh, mu)
 
-    n_p_lr = [(n_max, poi.sf(n_max), likelihood_ratio(n_max+1, b, t))]
-    n_p_lr.extend((n, poi.pmf(n), likelihood_ratio(n, b, t)) for n in xrange(n_max+1))
+    # n_p_lr = [(n_max, poi.sf(n_max), likelihood_ratio(n_max+1, b, t))]
+    n_p_lr = [(n_max, poisson_sf(n_max, mu), likelihood_ratio(n_max+1, b, t))]
+    # n_p_lr.extend((n, poi.pmf(n), likelihood_ratio(n, b, t)) for n in xrange(n_max+1))
+    n_p_lr.extend((n, poisson_pmf(n, mu), likelihood_ratio(n, b, t)) for n in xrange(n_max+1))
     n_p_lr = sorted(n_p_lr, key=operator.itemgetter(2))
 
     p_cum = 0.0
