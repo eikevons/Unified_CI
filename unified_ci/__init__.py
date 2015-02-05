@@ -18,11 +18,11 @@ The modules offer a more-or-less uniform interface to calculate the lower
 and upper bounds of uniform confidence intervals as well as to calculate the
 necessary intermediate results (e.g. likelihood ratios, critical values):
 
-* :func:`lower_limit(...)`
-* :func:`upper_limit(...)`
-* :func:`confidence_interval(...)`
-* :func:`critical_value(...)`
-* :func:`likelihood_ratio(...)`
+* :func:`lower_limit`
+* :func:`upper_limit`
+* :func:`confidence_interval`
+* :func:`critical_value`
+* :func:`likelihood_ratio`
 
 The `simple_*` cases above are the ones discussed in the original paper
 "Unified approach to the classical statistical analysis of small signals" by
