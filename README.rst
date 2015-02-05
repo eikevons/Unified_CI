@@ -5,8 +5,8 @@ Introduction
 ------------
 
 The modules in this package contain tools to calculate unified
-confidence intervals in different situations: For each situation a
-single module exists.
+confidence intervals in different situations. For each situation a
+single module exists:
 
 `simple_gaussian`
     Expectation value of a Gaussian distributed variable with *known*
@@ -19,7 +19,7 @@ single module exists.
     Expectation value of Poissonian with *unknown* background.
 
 The modules offer a more-or-less uniform interface to calculate the lower
-and upper bounds of uniform confidence intervals as well as to calculate the
+and upper bounds of unified confidence intervals as well as to calculate the
 necessary intermediate results (e.g. likelihood ratios, critical values):
 
 * `lower_limit(...)`
@@ -34,6 +34,9 @@ signals" by G.Feldman and R.Cousins `arXiv:physics/9611021
 <http://arxiv.org/abs/physics/9711021>`_. For a introduction to
 confidence intervals see e.g. `Wikipedia
 <https://en.wikipedia.org/wiki/Confidence_interval>`_.
+
+The `hybrid_*` cases use hybrid resampling to treat nuisance parameters,
+see e.g. [SWW2009]_ and [CL2000]_.
 
 Installation
 ------------
@@ -59,3 +62,8 @@ If you want to use the complete package it can be installed by:
 
 .. _NumPy: http://numpy.scipy.org
 .. _SciPy: http://scipy.org/scipylib/index.html
+.. [SWW2009] Sen, Walker, Woodroofe (2009) "On the unified method with
+   nuisance parameters". In: Statistica Sinica 19(1)301--314.
+   http://www3.stat.sinica.edu.tw/statistica/oldpdf/A19n116.pdf
+.. [CL2000] Chunag, Lai (2000) "Hybrid Resampling Methods for Confidence
+   Intervals". In: Statistica Sinica 10(1)1-50. http://www3.stat.sinica.edu.tw/statistica/oldpdf/A10n11.pdf
