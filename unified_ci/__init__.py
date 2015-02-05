@@ -6,12 +6,12 @@ The modules in this package contain tools to calculate unified
 confidence intervals in different situations:
 For each  a single module exists.
 
-:mod:`simple_gaussian`
+:mod:`~unified_ci.simple_gaussian`
   Expectation value of a Gaussian distributed variable with *known*
   variance constrained to the positive domain. 
-:mod:`simple_poisson`
+:mod:`~unified_ci.simple_poisson`
   Expectation value of Poissonian with *known* background.
-:mod:`hybrid_poisson`
+:mod:`~unified_ci.hybrid_poisson`
   Expectation value of Poissonian with *unknown* background.
 
 The modules offer a more-or-less uniform interface to calculate the lower
