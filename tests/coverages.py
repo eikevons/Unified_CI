@@ -8,22 +8,31 @@ Possible COMMANDs:
     simple_gauss    to calculate a coverage grid for simple_gaussian
     hybrid_poisson  to calculate a coverage grid for hybrid_poisson
     plot            to plot a coverage grid file
+    hist            to plot a histogram of a coverage grid file
+    cdf             to plot a cdf histogram of a coverage grid file
 
 Expected ARGS:
     - simple_poisson: THETAs Bs CLs NTEST
     - simple_gauss: MUs SIGMAs CLs NTEST
     - hybrid_poisson: THETAs Bs GAMMAs CLs NTEST
-    - plot: FILEPATH
+    - plot, hist, cdf: FILEPATH
 
 The PARAMs are comma separated lists of the respective parameter values or
 colon separated triples of `np.linspace` arguments:
     1.0,1.1,1.3,1.4 to test the specified values
 or
     1.0:5.0:10 to test a grid of 10 points between 1.0 and 5.0
+
+Output Data
+-----------
+The header lines are prefixed with '#'. Comments can be added or lines can
+be commented by prefixing with '!'. Preceding whitespaces are *not*
+stripped!
+
 """
 from __future__ import division, print_function
 import sys
-from itertools import product
+from itertools import product, cycle
 import multiprocessing
 import numpy as np
 
@@ -165,6 +174,8 @@ def load_coverage_file(path):
     with open(path) as fd:
         # parse header
         for line in fd:
+            if line.startswith("!"):
+                continue
             if line.startswith("#"):
                 if ":" in line:
                     toks = line.split()
@@ -177,23 +188,23 @@ def load_coverage_file(path):
                     colnames = line.split()[1:]
                     break
 
-        vals = np.loadtxt(fd)
+        vals = np.loadtxt(fd, comments="!")
     return params, colnames, vals
 
-def calc_cl_uncertainty(target_cl, N_mc):
+def calc_cl_uncertainty(taplrget_cl, N_mc):
     """Calculate uncertainty of CL estimated from binomial distribution."""
     print(target_cl, N_mc)
     return np.sqrt(target_cl * (1 - target_cl) / N_mc)
 
-def plot(file):
-    params, colnames, vals = load_coverage_file(file)
+def plot(path):
+    params, colnames, vals = load_coverage_file(path)
     from matplotlib import pyplot as plt
 
     n_MC = params["ntest"]
     all_target_cls = set()
 
     plt.figure()
-    plt.title("coverage grid {}".format(file))
+    plt.title("coverage grid {}".format(path))
     # all unique parameter value combinations (the last 2 columns are CL and N_success)
     upars = list(product(*[np.unique(vals[:,i]) for i in range(vals.shape[1]-2)]))
     for i, up in enumerate(upars):
@@ -203,6 +214,9 @@ def plot(file):
             idx *= (vals[:,j] == p)
 
         n_points = idx.sum()
+        if not n_points:
+            print("No data for {0!r}".format(up))
+            continue
         n_succ = vals[idx,-1]
         target_cls = vals[idx,-2]
         all_target_cls.update(target_cls)
@@ -230,10 +244,68 @@ def plot(file):
     plt.ylim((0.9 * n_MC * min(all_target_cls), 1.1 * n_MC))
     plt.show()
 
-commands = {"simple_poisson" : simple_poisson,
-            "simple_gauss" : simple_gauss,
-            "hybrid_poisson" : hybrid_poisson,
-            "plot": plot
+def hist(path):
+    params, colnames, vals = load_coverage_file(path)
+    from matplotlib import pyplot as plt
+    from scipy.stats import binom
+
+    # Prepare binning
+    n_MC = params["ntest"]
+    n_min = min(n_MC * min(params["cl"]), vals[:,-1].min())
+    bin_centers = np.arange(n_min, n_MC + 1)
+    bins = np.empty((bin_centers.size + 1,))
+    bins[:bin_centers.size] = bin_centers - 0.5
+    bins[-1] = bin_centers[-1] + 0.5
+
+    plt.figure()
+    plt.title("coverage histogram {}".format(path))
+    ls_col = cycle(product(("solid", "dashed", "dashdot", "dotted"), "rgbmk"))
+    for  targ_cl, (ls, col) in zip(params["cl"], ls_col):
+        idx = vals[:,-2] == targ_cl
+        n_cov = vals[idx,-1]
+
+        plt.hist(n_cov, bins, normed=True, histtype="step", color=col, linestyle=ls, linewidth=3, label="{0:.5f}".format(targ_cl))
+        plt.plot(bin_centers, binom.pmf(bin_centers, n_MC, targ_cl), color=col, linestyle=ls, marker="o", mew=0)
+
+    plt.legend(loc="best", title="target CL")
+    plt.xlabel("#(covered)")
+    plt.ylabel("frequency")
+    plt.show()
+
+def cdf(path):
+    params, colnames, vals = load_coverage_file(path)
+    from matplotlib import pyplot as plt
+    from scipy.stats import binom
+    from statsmodels.distributions import ECDF
+
+    # Prepare binning
+    n_MC = params["ntest"]
+    n_min = min(n_MC * min(params["cl"]), vals[:,-1].min())
+    bin_centers = np.arange(n_min, n_MC + 1)
+
+    plt.figure()
+    plt.title("coverage histogram {}".format(path))
+    ls_col = cycle(product(("solid", "dashed", "dashdot", "dotted"), "rgbmk"))
+    for  targ_cl, (ls, col) in zip(params["cl"], ls_col):
+        idx = vals[:,-2] == targ_cl
+        n_cov = vals[idx,-1]
+        ecdf = ECDF(n_cov)
+        plt.plot(bin_centers, ecdf(bin_centers),
+                 color=col, linestyle=ls, linewidth=3,
+                 label="{0:.5f}".format(targ_cl))
+        plt.plot(bin_centers, binom.cdf(bin_centers, n_MC, targ_cl), color=col, linestyle=ls, marker="o", mew=0)
+
+    plt.legend(loc="best", title="target CL")
+    plt.xlabel("#(covered)")
+    plt.ylabel("cumulative frequency (CDF)")
+    plt.show()
+
+commands = {"simple_poisson": simple_poisson,
+            "simple_gauss": simple_gauss,
+            "hybrid_poisson": hybrid_poisson,
+            "plot": plot,
+            "hist": hist,
+            "cdf": cdf
            }
 
 def main():
