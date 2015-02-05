@@ -18,11 +18,17 @@ The modules offer a more-or-less uniform interface to calculate the lower
 and upper bounds of uniform confidence intervals as well as to calculate the
 necessary intermediate results (e.g. likelihood ratios, critical values):
 
-Cases 1. and 2. above are the ones discussed in the original paper
-"Unified approach to the classical statistical analysis of small
-signals" by G.Feldman and R.Cousins `arXiv:physics/9611021
-<http://arxiv.org/abs/physics/9711021>`_. For a introduction to
-confidence intervals see e.g. `Wikipedia
+* :func:`lower_limit(...)`
+* :func:`upper_limit(...)`
+* :func:`confidence_interval(...)`
+* :func:`critical_value(...)`
+* :func:`likelihood_ratio(...)`
+
+The `simple_*` cases above are the ones discussed in the original paper
+"Unified approach to the classical statistical analysis of small signals" by
+G.Feldman and R.Cousins `arXiv:physics/9611021
+<http://arxiv.org/abs/physics/9711021>`_. For a introduction to confidence
+intervals see e.g. `Wikipedia
 <https://en.wikipedia.org/wiki/Confidence_interval>`_.
 
 """
